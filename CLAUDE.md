@@ -2,9 +2,11 @@
 
 This repo is built **one step per session**. In every session:
 
-1. Read [BUILD.md](BUILD.md) (the state board) and the step's spec in
-   [DESIGN.md](DESIGN.md) §10. Do the single open step Chris names (or the first
-   unblocked one). Do not start a second step, even if the first finishes early.
+1. Read [BUILD.md](BUILD.md) (the state board), then the step's execution note in
+   [steps/](steps/) (`steps/B<N>-*.md` — objective, inputs, procedure, gate, what to
+   record), then its spec in [DESIGN.md](DESIGN.md) §10. Do the single open step Chris
+   names (or the first unblocked one). Do not start a second step, even if the first
+   finishes early.
 2. Honor the frozen decisions listed in BUILD.md — they came from an adversarial
    review ([reviews/](reviews/)) and four research spikes ([spikes/](spikes/)); do not
    relitigate them inside a build session.
