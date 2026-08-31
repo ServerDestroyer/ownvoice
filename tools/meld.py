@@ -120,7 +120,7 @@ def selftest():
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--draft"); ap.add_argument("--anchor")
-    ap.add_argument("--model", default="google/gemini-3.1-pro")
+    ap.add_argument("--model", default="google/gemini-3.1-pro-preview")
     ap.add_argument("--arms", default="")
     ap.add_argument("--temperature", type=float, default=0.7)
     ap.add_argument("--out", default="runs/b1")

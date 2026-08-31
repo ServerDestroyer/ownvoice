@@ -28,3 +28,10 @@ in the same session.
 - 2026-08-31 · B1 harness pre-built (`tools/meld.py`, `tools/meld_seeds.json`, 6 arms,
   leakage diagnostics, blind-sheet generator, selftested + dry-run verified). The B1
   *session* (run + rank + freeze) remains open.
+- 2026-08-31 · B1 prep — model id corrected: `google/gemini-3.1-pro` does not exist on
+  OpenRouter; the live id is `google/gemini-3.1-pro-preview` (verified against the
+  public /models endpoint; meld.py default fixed). Stand-in draft staged at
+  `runs/b1/draft.md` (6 LLM academic-register paragraphs); `runs/b1/anchors/README.md`
+  explains what anchor files Chris must drop in. Dry-run assembled 36/36 prompts.
+  Still blocked on Chris: OPENROUTER_API_KEY, anchor paragraphs, known-bad
+  topic-matched anchor, challenger-model picks.
