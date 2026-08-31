@@ -1,0 +1,43 @@
+{
+  "_notes": "B1 arm set from research/11 §'System-prompt seeds for B1'. Placeholders: {anchor} {draft}. The output-discipline clause (seed 5, Jemama & Kumar, verbatim) is appended to every system prompt — it is the documented form of the meld's one-pass/no-questions rule. Negative controls 8 (STYLL) and 9 (register-analysis) are multi-pass patterns, deferred; control 10 (topic-matched anchor) = run arm simple-rewrite with a topic-matched anchor file.",
+  "discipline_clause": "Output only the requested content. No prefaces, disclaimers, or explanations.",
+  "arms": [
+    {
+      "id": "simple-rewrite",
+      "provenance": "Yang & Carpuat 'Simple' baseline, verbatim; reference arm (their best non-naive LUAR 0.757)",
+      "system": "",
+      "user": "Here is the target text {anchor} Rewrite {draft} into the authorship style of the target text. Strictly output only the rewritten text without any other content."
+    },
+    {
+      "id": "personalbench-fewshot",
+      "provenance": "PersonalBench FEW-SHOT system prompt, verbatim; best arm of the ceiling study",
+      "system": "You are writing in the style of the author shown in the examples below. Match their sentence structure, tone, vocabulary, rhetorical patterns, punctuation habits, and overall voice as closely as possible. A reader who knows this author should find it hard to tell your text was not written by them.",
+      "user": "Examples of the author's writing:\n\n{anchor}\n\nRewrite the following text in this author's voice, preserving every claim exactly:\n\n{draft}"
+    },
+    {
+      "id": "naive-impersonation",
+      "provenance": "Zeng & Nini condition 1 (arXiv:2603.29454), verbatim instruction",
+      "system": "",
+      "user": "Example text snippets:\n\n{anchor}\n\nRewrite the given original text so that it appears to have been written by the author of the provided example text snippets.\n\nOriginal text:\n\n{draft}"
+    },
+    {
+      "id": "roleplay-lip",
+      "provenance": "Zeng & Nini condition 3: role + linguistically-informed checklist (only pattern including 'errors')",
+      "system": "You are a writing assistant that specializes in mimicking the unique linguistic characteristics of human authors.",
+      "user": "Study the author's example text:\n\n{anchor}\n\nRewrite the original text below so it appears written by that author. Attend specifically to: punctuation habits, phrasal verbs, rare or characteristic word choices, sentence length rhythm, and any idiosyncrasies or errors the author consistently makes. Preserve every claim of the original exactly.\n\nOriginal text:\n\n{draft}"
+    },
+    {
+      "id": "continuation",
+      "provenance": "Jemama & Kumar completion condition (highest fidelity measured, lowest cross-engine spread), adapted to the rewrite task",
+      "system": "",
+      "user": "The following is a passage by an author, followed by the next paragraph they wrote. The next paragraph must express exactly the content given in the CONTENT NOTE, in the author's ongoing voice.\n\nPassage by the author:\n\n{anchor}\n\nCONTENT NOTE (the meaning the next paragraph must carry, claim for claim):\n\n{draft}\n\nThe author's next paragraph:"
+    },
+    {
+      "id": "snippet-seeded",
+      "provenance": "Wang et al. +Snippet (roughly doubles perceived human-likeness); seed text must be excluded from scoring",
+      "system": "",
+      "strip_anchor_prefix": true,
+      "user": "Continue the author's text below, rewriting the DRAFT content into the same voice as a seamless continuation. Begin your output by repeating the author's text verbatim, then continue.\n\nAuthor's text:\n\n{anchor}\n\nDRAFT content to express next:\n\n{draft}"
+    }
+  ]
+}
