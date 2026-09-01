@@ -84,3 +84,10 @@ share a label between them.
   needs_mapping flags right, fan-out exact, holds candidates rank the true near-miss
   passages first. Runtime <0.01 s. Next unblocked solo work: none — T1b and T3 both
   wait on `OPENROUTER_API_KEY` in `.env`, plus T3's anchor/challenger inputs.
+- 2026-08-31 · **Two weak T1 seeds regenerated** (the last open build item; Chris chose
+  build-first over the test track). Blind Haiku subagents, same `--ingest` validators
+  plus two new class-specific checks: out-lex seeds must leave the in-lexicon hedge
+  multiset unchanged, condition-drop seeds must make a conditions marker disappear.
+  Both pass; `entailment_checked: false` until the next bench_guard run. **The build
+  is now fully made — nothing left to construct.** Everything remaining is
+  measurement: T1b/T3 (need the key), T4–T6 (need Chris).

@@ -1,11 +1,10 @@
 {
  "class": "HEDGE-DROP-OUT-LEX",
- "original": "Labour migration typically receives explanation through frameworks centered on economic differentials and cost-benefit calculations, yet such models capture only partial aspects of a more complex phenomenon. Ethnographic studies reveal that individual decisions to migrate remain deeply entangled with kinship networks, community attachments, and forms of knowledge that cannot be reduced to rational economic choice. The cumulative findings from fieldwork across diverse contexts suggest a recalibration: that migration scholars must attend to how people themselves narrate and justify their movement. Integration of such qualitative understanding with quantitative analysis of migration patterns appears increasingly necessary for the field's theoretical development.",
- "seeded": "Labour migration typically receives explanation through frameworks centered on economic differentials and cost-benefit calculations, yet such models capture only partial aspects of a more complex phenomenon. Ethnographic studies reveal that individual decisions to migrate remain deeply entangled with kinship networks, community attachments, and forms of knowledge that cannot be reduced to rational economic choice. The cumulative findings from fieldwork across diverse contexts suggest a recalibration: that migration scholars must attend to how people themselves narrate and justify their movement. Integration of such qualitative understanding with quantitative analysis of migration patterns is increasingly necessary for the field's theoretical development.",
- "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "original": "Post-conflict societies continue to struggle with the negotiation of competing historical narratives, a challenge documented in extensive case studies across multiple regions. Archives and memorial practices indicate that different communities construct divergent accounts of past events based on lived experience and memory. Our reading of the evidence is that reconciliation succeeds through institutional frameworks that acknowledge multiple versions of the past. These frameworks allow societies to transmit contested histories across generations without imposing uniformity of interpretation.",
+ "seeded": "Post-conflict societies continue to struggle with the negotiation of competing historical narratives, a challenge documented in extensive case studies across multiple regions. Archives and memorial practices indicate that different communities construct divergent accounts of past events based on lived experience and memory. Reconciliation succeeds through institutional frameworks that acknowledge multiple versions of the past. These frameworks allow societies to transmit contested histories across generations without imposing uniformity of interpretation.",
+ "generator": "claude-haiku-4-5 (blind subagents; regeneration of the two weak T1 seeds)",
  "temperature": null,
- "entailment_checked": true,
+ "entailment_checked": false,
  "label": null,
- "ts": "2026-08-31 17:47:21",
- "entailment_clean": true
+ "ts": "2026-08-31 19:07:57"
 }
