@@ -1,14 +1,12 @@
-# author-corpus — fills from the T3 anchors
+# author-corpus — Chris's prose (in T4 Chris is the author)
 
-The stand-in bundle has no author corpus of its own, and should not have one: in T4
-Chris *is* the author, so the anchor pool is Chris's own prose, collected at T3 into
-`runs/b1/anchors/`.
+`dags-wp-nontechnical-020.md` — the DAGS whitepaper, nontechnical pre-release 020
+(Christopher Colantuono, 2019, ~13.4k words), Chris's designated best writing. Same file
+as the T3 anchor pool in `runs/b1/anchors/`.
 
-At T4 setup, copy (do not move) 2-4 of those anchors here and into `state/anchors/` per
-the walkthrough skill's setup step 4. Until then `tools/intake_check.py` reports one
-blocking gap on this directory, which is correct and expected — the bundle is complete
-apart from the input only Chris can supply.
+At T4 setup, copy 2-4 paragraphs from it into `state/anchors/` per the walkthrough
+skill's setup step 4 (or the T3-frozen anchors, once meld-v1 exists).
 
-The corpus will sit far below the 50k-word / 40-doc calibration floor. That is fine for
-a dry run: voice metrics run trend-only (DESIGN §3.4) and T4 measures the loop, not
-voice.
+One document and ~13k words sits below the 50k-word / 40-doc calibration floor, so
+`intake_check` reports a NOTE, not a gap: voice metrics run trend-only (DESIGN §3.4).
+T4 measures the loop, not voice.
