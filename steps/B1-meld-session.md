@@ -4,8 +4,10 @@
 as `tools/meld-v1.json`, with regression triples.
 
 **Needs from Chris (collect at session start):**
-- `OPENROUTER_API_KEY=sk-...` dropped in the repo-root `.env` (gitignored; env var
-  also works). Only live calls need it — selftest/dry-run/blind run without it.
+- Repo-root `.env` (copy from `.env.example`, gitignored): `OPENROUTER_API_KEY`
+  plus the run config — MELD_MODEL, MELD_TEMPERATURE, MELD_ARMS, MELD_OUT,
+  MELD_DRAFT, MELD_ANCHOR. CLI flags override. Only live calls need the key —
+  selftest/dry-run/blind run without it.
 - 2–4 anchor paragraphs of Chris's own writing (note each: written or spoken
   transcript). Save to `runs/b1/anchors/anchor1.md` etc. NOT topic-matched to the
   draft — topic-matched anchors measurably hurt (research/11).

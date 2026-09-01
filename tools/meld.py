@@ -6,8 +6,10 @@ Run arms:   python3 tools/meld.py --draft d.md --anchor a.md --out runs/b1 \\
 Dry run:    add --dry-run (prints assembled prompts, no API calls)
 Blind sheet: python3 tools/meld.py --blind runs/b1   (shuffled sheet + key.json)
 
-Key: OPENROUTER_API_KEY=... in repo-root .env (gitignored), or the environment.
-Only needed for live calls — selftest/dry-run/blind never touch it.
+Config: repo-root .env (gitignored; template in .env.example) — OPENROUTER_API_KEY
+plus run defaults MELD_MODEL, MELD_TEMPERATURE, MELD_ARMS, MELD_OUT, MELD_DRAFT,
+MELD_ANCHOR. CLI flags override .env; the key is only needed for live calls —
+selftest/dry-run/blind never touch it.
 Draft file = paragraphs separated by blank lines.
 Every result row records the leakage diagnostics research/11 mandates:
 trigram overlap output-vs-anchor (leak) and output-vs-draft (copy).
@@ -26,18 +28,26 @@ API = "https://openrouter.ai/api/v1/chat/completions"
 SEEDS = json.loads((Path(__file__).parent / "meld_seeds.json").read_text())
 
 
-def api_key() -> str:
-    """OPENROUTER_API_KEY from the environment, else from the repo-root .env
-    (lines of KEY=value; quotes optional). Only needed at call time, never at build."""
-    if os.environ.get("OPENROUTER_API_KEY"):
-        return os.environ["OPENROUTER_API_KEY"]
+def dotenv() -> dict:
+    """Repo-root .env as a dict (lines of KEY=value; quotes optional, # comments)."""
     env = Path(__file__).parent.parent / ".env"
+    d = {}
     if env.exists():
         for line in env.read_text().splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
             k, _, v = line.partition("=")
-            if k.strip() == "OPENROUTER_API_KEY":
-                return v.strip().strip("'\"")
-    sys.exit("no OPENROUTER_API_KEY in environment or .env — put OPENROUTER_API_KEY=sk-... in the repo-root .env")
+            d[k.strip()] = v.strip().strip("'\"")
+    return d
+
+
+def api_key() -> str:
+    """OPENROUTER_API_KEY from the environment, else .env. Only needed at call time."""
+    key = os.environ.get("OPENROUTER_API_KEY") or dotenv().get("OPENROUTER_API_KEY")
+    if not key:
+        sys.exit("no OPENROUTER_API_KEY in environment or .env — put OPENROUTER_API_KEY=sk-... in the repo-root .env")
+    return key
 
 
 def trigram_overlap(a: str, b: str) -> float:
@@ -134,12 +144,14 @@ def selftest():
 
 
 if __name__ == "__main__":
+    cfg = dotenv()
     ap = argparse.ArgumentParser()
-    ap.add_argument("--draft"); ap.add_argument("--anchor")
-    ap.add_argument("--model", default="google/gemini-3.1-pro-preview")
-    ap.add_argument("--arms", default="")
-    ap.add_argument("--temperature", type=float, default=0.7)
-    ap.add_argument("--out", default="runs/b1")
+    ap.add_argument("--draft", default=cfg.get("MELD_DRAFT"))
+    ap.add_argument("--anchor", default=cfg.get("MELD_ANCHOR"))
+    ap.add_argument("--model", default=cfg.get("MELD_MODEL", "google/gemini-3.1-pro-preview"))
+    ap.add_argument("--arms", default=cfg.get("MELD_ARMS", ""))
+    ap.add_argument("--temperature", type=float, default=float(cfg.get("MELD_TEMPERATURE", 0.7)))
+    ap.add_argument("--out", default=cfg.get("MELD_OUT", "runs/b1"))
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--blind", metavar="RUN_DIR")
     ap.add_argument("--selftest", action="store_true")
