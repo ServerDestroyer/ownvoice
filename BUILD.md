@@ -1,18 +1,19 @@
 # BUILD — state board
 
-One build step per session (Chris's standing rule). A session: reads CLAUDE.md, does
-exactly one step below, updates this board, commits, stops. Never start the next step
-in the same session.
+**Order changed 2026-08-31 by Chris: build everything first, test everything after.**
+All build work (tooling for B1, B2, B4, B5) lands before any measurement session runs.
+The measurement sessions — B1 run/rank/freeze, B2 benchmark, B3 dry run, B6
+acceptance — form the test phase at the end. Known cost: B4 encodes the design as
+written instead of what B3 proved; B3 findings may force B4 amendments.
 
 | Step | What | Needs Chris? | Status |
 |------|------|--------------|--------|
 | B0 | Intake validator (`tools/intake_check.py`) | no | **done** 2026-08-31 |
-| B1 | Meld session: reconstruct prompt, run arms via `tools/meld.py`, blind-rank, freeze meld v1 (model id + prompt + config) | yes — OpenRouter key, 2–4 anchor paragraphs, draft paragraphs, confirm Gemini 3.1 Pro model id | open |
-| B2 | Guard stack: entailment wrapper (AlignScore/MiniCheck), typed hedge diff (retune `factwash`), citation/entity/number multiset diff, mechanics lock; ~30-seed benchmark per DESIGN §10-B2 | no (build); Chris reviews results | open |
-| B3 | Manual dry run: two contrasting sections through the arc loop by hand + one serial control section; record the DESIGN §10-B3 measurements | yes — author in the loop | open — blocked on B1+B2 |
-| B4 | The walkthrough skill: board, arcs, tick/tock scripts, gates G0–G7, invariants I1–I8, learnings store, termbase | no (build) | open — blocked on B3 |
-| B5 | Grounding prepass: source-search index, grounding ledger, citation→section fan-out | no | open |
-| B6 | Acceptance: Paper 007 assets → intake check → walk end to end; then a second paper with a different template | yes — assets + author | open — blocked on B1–B5 |
+| B1 | Meld harness (`tools/meld.py`) — the *run/rank/freeze session* moves to the test phase | build: no | **built** 2026-08-31 |
+| B2 | Guard stack tooling (`tools/guard.py`) + seed-generator — the *30-seed benchmark* moves to the test phase | build: no | building |
+| B4 | The walkthrough skill: board, arcs, tick/tock scripts, gates G0–G7, invariants I1–I8, learnings store, termbase | build: no | building |
+| B5 | Grounding prepass (`tools/prepass.py`): source-search index, grounding ledger, citation→section fan-out | no | building |
+| — | **TEST PHASE** (after all builds): B1 session (key, anchors, blind rank, freeze meld-v1) → B2 benchmark (30 seeds, recall table, witness measurement) → B3 dry run (two arcs + serial control, author in loop) → fold B3 amendments into B4 → B6 acceptance (Paper 007) | yes | blocked on builds |
 
 ## Frozen decisions (do not relitigate in a step session)
 
