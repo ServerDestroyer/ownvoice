@@ -1,0 +1,11 @@
+{
+ "class": "HEDGE-DROP-IN-LEX",
+ "original": "The comparative analysis of constitutional frameworks appears to reveal recurring tensions between centralized and distributed authority structures. These tensions may be understood as emerging from distinct historical contexts and interpretive traditions across different jurisdictions. The evidence suggests that judicial approaches to federalism, while locally contingent, demonstrate certain consistent patterns that warrant further investigation. Such patterns seemingly emerge from shared structural challenges rather than direct institutional borrowing. The institutional dynamics at play indicate a productive area for continued empirical study.",
+ "seeded": "The comparative analysis of constitutional frameworks reveals recurring tensions between centralized and distributed authority structures. These tensions may be understood as emerging from distinct historical contexts and interpretive traditions across different jurisdictions. The evidence suggests that judicial approaches to federalism, while locally contingent, demonstrate certain consistent patterns that warrant further investigation. Such patterns seemingly emerge from shared structural challenges rather than direct institutional borrowing. The institutional dynamics at play indicate a productive area for continued empirical study.",
+ "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "temperature": null,
+ "entailment_checked": true,
+ "label": null,
+ "ts": "2026-08-31 17:47:21",
+ "entailment_clean": true
+}

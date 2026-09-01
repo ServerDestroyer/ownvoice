@@ -1,0 +1,11 @@
+{
+ "class": "HEDGE-DROP-IN-LEX",
+ "original": "Paleoclimate reconstruction from proxy data appears to face considerable methodological constraints when attempting to characterize long-term climatic trends. The analytical challenges inherent in such work seem to stem from signal degradation across multiple measurement intervals and the inherent uncertainty in proxy calibration. Recent approaches suggest that ensemble methods may help characterize the range of plausible past climates, though such techniques remain sensitive to underlying assumptions about data quality. The evidence available to paleoclimatologists indicates that careful attention to source uncertainty ultimately shapes interpretive conclusions. Such work demands recognition of these limitations alongside substantive findings.",
+ "seeded": "Paleoclimate reconstruction from proxy data faces considerable methodological constraints when attempting to characterize long-term climatic trends. The analytical challenges inherent in such work seem to stem from signal degradation across multiple measurement intervals and the inherent uncertainty in proxy calibration. Recent approaches suggest that ensemble methods may help characterize the range of plausible past climates, though such techniques remain sensitive to underlying assumptions about data quality. The evidence available to paleoclimatologists indicates that careful attention to source uncertainty ultimately shapes interpretive conclusions. Such work demands recognition of these limitations alongside substantive findings.",
+ "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "temperature": null,
+ "entailment_checked": true,
+ "label": null,
+ "ts": "2026-08-31 17:47:21",
+ "entailment_clean": true
+}

@@ -1,0 +1,11 @@
+{
+ "class": "EVIDENTIAL-REFRAME",
+ "original": "We observe that rhetorical strategies in parliamentary discourse systematically privilege certain interpretive frameworks over others. The temporal structure of debate sessions reveals how opening speakers establish discursive dominance, constraining the response space available to subsequent contributors. Language patterns associated with institutional authority\u2014particular sentence constructions, modal auxiliaries, and epistemic markers\u2014concentrate among senior legislators. These lexical choices do not appear randomly but rather cluster around substantive policy domains. Our examination of transcripts across legislative sessions confirms that this phenomenon persists as a robust feature of parliamentary communication.",
+ "seeded": "Researchers observe that rhetorical strategies in parliamentary discourse systematically privilege certain interpretive frameworks over others. The temporal structure of debate sessions reveals how opening speakers establish discursive dominance, constraining the response space available to subsequent contributors. Language patterns associated with institutional authority\u2014particular sentence constructions, modal auxiliaries, and epistemic markers\u2014concentrate among senior legislators. These lexical choices do not appear randomly but rather cluster around substantive policy domains. The examination of transcripts across legislative sessions confirms that this phenomenon persists as a robust feature of parliamentary communication.",
+ "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "temperature": null,
+ "entailment_checked": true,
+ "label": null,
+ "ts": "2026-08-31 17:47:21",
+ "entailment_clean": true
+}

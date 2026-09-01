@@ -1,0 +1,11 @@
+{
+ "class": "HEDGE-DROP-OUT-LEX",
+ "original": "Labour migration typically receives explanation through frameworks centered on economic differentials and cost-benefit calculations, yet such models capture only partial aspects of a more complex phenomenon. Ethnographic studies reveal that individual decisions to migrate remain deeply entangled with kinship networks, community attachments, and forms of knowledge that cannot be reduced to rational economic choice. The cumulative findings from fieldwork across diverse contexts suggest a recalibration: that migration scholars must attend to how people themselves narrate and justify their movement. Integration of such qualitative understanding with quantitative analysis of migration patterns appears increasingly necessary for the field's theoretical development.",
+ "seeded": "Labour migration typically receives explanation through frameworks centered on economic differentials and cost-benefit calculations, yet such models capture only partial aspects of a more complex phenomenon. Ethnographic studies reveal that individual decisions to migrate remain deeply entangled with kinship networks, community attachments, and forms of knowledge that cannot be reduced to rational economic choice. The cumulative findings from fieldwork across diverse contexts suggest a recalibration: that migration scholars must attend to how people themselves narrate and justify their movement. Integration of such qualitative understanding with quantitative analysis of migration patterns is increasingly necessary for the field's theoretical development.",
+ "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "temperature": null,
+ "entailment_checked": true,
+ "label": null,
+ "ts": "2026-08-31 17:47:21",
+ "entailment_clean": true
+}

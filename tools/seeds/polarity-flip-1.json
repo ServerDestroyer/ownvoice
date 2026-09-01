@@ -1,0 +1,11 @@
+{
+ "class": "POLARITY-FLIP",
+ "original": "Spontaneous adverse event reporting systems do not provide an accurate epidemiological picture of medication safety in the general population. Healthcare providers underreport mild and transient effects, creating significant gaps in the pharmacovigilance database. Furthermore, the reliance on voluntary submission mechanisms means that serious but rare events may remain undetected for extended periods. The temporal lag between medication introduction and detection of cumulative toxicity persists as a fundamental limitation. This underascertainment problem undermines regulatory confidence in the safety profile of marketed pharmaceuticals.",
+ "seeded": "Spontaneous adverse event reporting systems provide an accurate epidemiological picture of medication safety in the general population. Healthcare providers underreport mild and transient effects, creating significant gaps in the pharmacovigilance database. Furthermore, the reliance on voluntary submission mechanisms means that serious but rare events may remain undetected for extended periods. The temporal lag between medication introduction and detection of cumulative toxicity persists as a fundamental limitation. This underascertainment problem undermines regulatory confidence in the safety profile of marketed pharmaceuticals.",
+ "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "temperature": null,
+ "entailment_checked": true,
+ "label": null,
+ "ts": "2026-08-31 17:47:21",
+ "entailment_clean": true
+}

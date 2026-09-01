@@ -1,0 +1,11 @@
+{
+ "class": "TRUE-PARAPHRASE",
+ "original": "Sleep deprivation among adolescents appears to correlate with several negative outcomes in academic performance and mental health indicators. The biological mechanisms underlying sleep need in young people differ somewhat from those in adults, suggesting specialized vulnerabilities during puberty. Available evidence tentatively points toward circadian rhythm shifts as a contributing factor in observed sleep deficits. Morning school start times may exacerbate this mismatch between adolescent physiology and educational scheduling demands. These preliminary findings suggest that sleep-related policy interventions warrant closer investigation in school settings.",
+ "seeded": "Sleep deprivation among adolescents seems to correlate with several negative outcomes in academic performance and mental health indicators. The biological mechanisms underlying sleep need in young people differ somewhat from those in adults, suggesting specialized vulnerabilities during puberty. Available evidence tentatively points toward circadian rhythm shifts as a contributing factor in observed sleep deficits. Morning school start times may exacerbate this mismatch between adolescent physiology and educational scheduling demands. These preliminary findings suggest that sleep-related policy interventions warrant closer investigation in school settings.",
+ "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "temperature": null,
+ "entailment_checked": true,
+ "label": null,
+ "ts": "2026-08-31 17:47:21",
+ "entailment_clean": true
+}

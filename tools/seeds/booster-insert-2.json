@@ -1,0 +1,11 @@
+{
+ "class": "BOOSTER-INSERT",
+ "original": "Listeners appear to engage in active prediction when processing novel harmonic sequences, though the mechanisms underlying this phenomenon remain incompletely characterized. The evidence suggests a role for both implicit learning and schematic expectation in shaping how listeners interpret chord progressions. Neuroimaging data indicate that cortical regions associated with memory retrieval show enhanced activity when listeners encounter unexpected harmonic turns, which may reflect predictive error signals. The findings seem consistent with theories proposing that musical comprehension relies on internalized models of stylistic convention. Such cognitive processes warrant further investigation at multiple levels of analysis.",
+ "seeded": "Listeners clearly appear to engage in active prediction when processing novel harmonic sequences, though the mechanisms underlying this phenomenon remain incompletely characterized. The evidence suggests a role for both implicit learning and schematic expectation in shaping how listeners interpret chord progressions. Neuroimaging data indicate that cortical regions associated with memory retrieval show enhanced activity when listeners encounter unexpected harmonic turns, which may reflect predictive error signals. The findings seem consistent with theories proposing that musical comprehension relies on internalized models of stylistic convention. Such cognitive processes warrant further investigation at multiple levels of analysis.",
+ "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "temperature": null,
+ "entailment_checked": true,
+ "label": null,
+ "ts": "2026-08-31 17:47:21",
+ "entailment_clean": true
+}

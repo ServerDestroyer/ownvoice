@@ -1,0 +1,11 @@
+{
+ "class": "ATTRIBUTION-DROP",
+ "original": "Marvin contends that household saving behavior reflects complex interactions between immediate consumption preferences and longer-term financial security goals. The tension between these competing motivations generates predictable patterns in how individuals allocate resources across time. Psychological factors including risk perception and temporal discounting substantially influence saving decisions. Cultural norms regarding debt and inheritance also shape financial practices within families. Understanding these behavioral dynamics requires integrating insights from psychology, sociology, and economic theory rather than relying solely on rational actor models.",
+ "seeded": "Household saving behavior reflects complex interactions between immediate consumption preferences and longer-term financial security goals. The tension between these competing motivations generates predictable patterns in how individuals allocate resources across time. Psychological factors including risk perception and temporal discounting substantially influence saving decisions. Cultural norms regarding debt and inheritance also shape financial practices within families. Understanding these behavioral dynamics requires integrating insights from psychology, sociology, and economic theory rather than relying solely on rational actor models.",
+ "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "temperature": null,
+ "entailment_checked": true,
+ "label": null,
+ "ts": "2026-08-31 17:47:21",
+ "entailment_clean": false
+}

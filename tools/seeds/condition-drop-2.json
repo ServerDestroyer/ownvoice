@@ -1,0 +1,11 @@
+{
+ "class": "CONDITION-DROP",
+ "original": "Probabilistic seismic hazard assessment derives defensible ground motion predictions only insofar as the underlying earthquake recurrence models accurately reflect the long-term behavior of mapped fault systems. Historical catalogs, though invaluable, often span insufficient time periods to capture rare but consequential events, thereby introducing systematic underestimation of extreme hazard levels. When paleoseismic evidence supplements instrumental records, the combined dataset yields more robust parameter estimates that better represent the full range of seismic activity. Failure to incorporate this paleoseismic constraint frequently results in hazard estimates that mischaracterize the true risk landscape.",
+ "seeded": "Probabilistic seismic hazard assessment derives defensible ground motion predictions since the underlying earthquake recurrence models accurately reflect the long-term behavior of mapped fault systems. Historical catalogs, though invaluable, often span insufficient time periods to capture rare but consequential events, thereby introducing systematic underestimation of extreme hazard levels. When paleoseismic evidence supplements instrumental records, the combined dataset yields more robust parameter estimates that better represent the full range of seismic activity. Failure to incorporate this paleoseismic constraint frequently results in hazard estimates that mischaracterize the true risk landscape.",
+ "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "temperature": null,
+ "entailment_checked": true,
+ "label": null,
+ "ts": "2026-08-31 17:47:21",
+ "entailment_clean": true
+}

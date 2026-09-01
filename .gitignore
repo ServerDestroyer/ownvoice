@@ -6,3 +6,4 @@ intake/*/template/
 intake/*/author-corpus/
 __pycache__/
 .venv/
+.models/

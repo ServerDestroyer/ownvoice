@@ -1,0 +1,11 @@
+{
+ "class": "BOOSTER-INSERT",
+ "original": "Hospital quality outcomes may be partially attributable to organizational practices that facilitate information sharing among clinical teams. The relationship between communication structures and patient safety seems particularly pronounced in high-stakes decision environments where coordination failures carry substantial consequences. Evidence from observational studies suggests that informal knowledge networks often prove as consequential as formal reporting hierarchies in shaping clinical practice. Such findings indicate that conventional organizational models may underestimate the role of interpersonal dynamics in institutional performance. Understanding these dynamics appears essential to any comprehensive theory of healthcare delivery.",
+ "seeded": "Hospital quality outcomes may be partially attributable to organizational practices that facilitate information sharing among clinical teams. The relationship between communication structures and patient safety clearly seems particularly pronounced in high-stakes decision environments where coordination failures carry substantial consequences. Evidence from observational studies suggests that informal knowledge networks often prove as consequential as formal reporting hierarchies in shaping clinical practice. Such findings indicate that conventional organizational models may underestimate the role of interpersonal dynamics in institutional performance. Understanding these dynamics appears essential to any comprehensive theory of healthcare delivery.",
+ "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "temperature": null,
+ "entailment_checked": true,
+ "label": null,
+ "ts": "2026-08-31 17:47:21",
+ "entailment_clean": true
+}

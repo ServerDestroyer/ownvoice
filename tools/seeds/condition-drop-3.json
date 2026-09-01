@@ -1,0 +1,11 @@
+{
+ "class": "CONDITION-DROP",
+ "original": "Crosslinguistic generalizations about word order patterns hold validity only when the comparison set includes adequate representation from genetically and areally diverse language families. Many proposed universals of linguistic structure emerge from convenience sampling of well-studied languages rather than from principled sampling across the documented global diversity of human speech. The claim that verb-initial languages exhibit particular syntactic constraints, for instance, requires evidence drawn from unbiased samples encompassing both well-known and understudied linguistic systems. Failure to observe this sampling rigor perpetuates patterns of analytical bias that misrepresent genuine structural universals.",
+ "seeded": "Crosslinguistic generalizations about word order patterns hold validity when the comparison set includes adequate representation from genetically and areally diverse language families. Many proposed universals of linguistic structure emerge from convenience sampling of well-studied languages rather than from principled sampling across the documented global diversity of human speech. The claim that verb-initial languages exhibit particular syntactic constraints, for instance, requires evidence drawn from unbiased samples encompassing both well-known and understudied linguistic systems. Failure to observe this sampling rigor perpetuates patterns of analytical bias that misrepresent genuine structural universals.",
+ "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "temperature": null,
+ "entailment_checked": true,
+ "label": null,
+ "ts": "2026-08-31 17:47:21",
+ "entailment_clean": true
+}

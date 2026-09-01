@@ -1,0 +1,11 @@
+{
+ "class": "EVIDENTIAL-REFRAME",
+ "original": "We argue that conventional fatigue models substantially underestimate accumulated damage in polycrystalline materials exposed to random loading cycles. Grain boundary geometry, not simply stress amplitude alone, governs the nucleation sites where microcracks initiate. Our laboratory measurements revealed that the spacing between high-angle boundaries explains crack initiation behavior that classical approaches fail to capture. Statistical analysis of varied specimen configurations indicates that material heterogeneity introduces nonlinearities absent from traditional S-N curve representations. The physical mechanism involves cooperative slip at preferred sites, a process whose prediction requires explicit representation of microstructural features.",
+ "seeded": "Researchers argue that conventional fatigue models substantially underestimate accumulated damage in polycrystalline materials exposed to random loading cycles. Grain boundary geometry, not simply stress amplitude alone, governs the nucleation sites where microcracks initiate. Laboratory measurements revealed that the spacing between high-angle boundaries explains crack initiation behavior that classical approaches fail to capture. Statistical analysis of varied specimen configurations indicates that material heterogeneity introduces nonlinearities absent from traditional S-N curve representations. The physical mechanism involves cooperative slip at preferred sites, a process whose prediction requires explicit representation of microstructural features.",
+ "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "temperature": null,
+ "entailment_checked": true,
+ "label": null,
+ "ts": "2026-08-31 17:47:21",
+ "entailment_clean": true
+}

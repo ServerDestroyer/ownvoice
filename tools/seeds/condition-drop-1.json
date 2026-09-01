@@ -1,0 +1,11 @@
+{
+ "class": "CONDITION-DROP",
+ "original": "The validity of instrumental variable estimation depends critically upon the assumption that instruments remain strictly exogenous to the structural error term. When this orthogonality condition holds rigorously, the estimator recovers consistent and unbiased parameters despite the presence of endogenous regressors in the model. Violation of this exogeneity assumption, conversely, yields estimates that diverge systematically from true population values and biases inference. The practical challenge lies in defending the exogeneity claim through theoretical reasoning rather than empirical verification alone.",
+ "seeded": "The validity of instrumental variable estimation depends critically upon the assumption that instruments remain strictly exogenous to the structural error term. The estimator recovers consistent and unbiased parameters despite the presence of endogenous regressors in the model. Violation of this exogeneity assumption, conversely, yields estimates that diverge systematically from true population values and biases inference. The practical challenge lies in defending the exogeneity claim through theoretical reasoning rather than empirical verification alone.",
+ "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "temperature": null,
+ "entailment_checked": true,
+ "label": null,
+ "ts": "2026-08-31 17:47:21",
+ "entailment_clean": false
+}

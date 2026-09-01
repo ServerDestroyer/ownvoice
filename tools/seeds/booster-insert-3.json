@@ -1,0 +1,11 @@
+{
+ "class": "BOOSTER-INSERT",
+ "original": "It appears that coastal fishing communities may benefit from adaptive management frameworks that respond flexibly to changing marine conditions. Such frameworks tend to distribute authority among local stakeholders, scientific advisors, and government regulators. The evidence suggests that mixed governance models reduce conflict and improve ecosystem resilience. This adaptive approach may also enhance the social stability of fishing economies over longer time horizons. Preliminary data indicates potential benefits, though implementation remains variable across regions.",
+ "seeded": "It appears that coastal fishing communities may benefit from adaptive management frameworks that respond flexibly to changing marine conditions. Such frameworks tend to distribute authority among local stakeholders, scientific advisors, and government regulators. The evidence clearly suggests that mixed governance models reduce conflict and improve ecosystem resilience. This adaptive approach may also enhance the social stability of fishing economies over longer time horizons. Preliminary data indicates potential benefits, though implementation remains variable across regions.",
+ "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "temperature": null,
+ "entailment_checked": true,
+ "label": null,
+ "ts": "2026-08-31 17:47:21",
+ "entailment_clean": true
+}

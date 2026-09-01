@@ -1,0 +1,11 @@
+{
+ "class": "HEDGE-DROP-OUT-LEX",
+ "original": "The ways in which technological infrastructure mediates scientific inquiry have become increasingly central to understanding how knowledge claims achieve credibility within laboratory settings. Our examination of observational practices across multiple sites suggests a persistent tendency toward what might be called instrumental dependency\u2014a reliance on apparatus that shapes both what can be asked and how answers are formulated. Yet the record of actual laboratory work hints at something more nuanced: scientists do not simply adopt tools as neutral conduits but rather adapt and subvert them in ways that exceed their original specifications. This adaptive capacity warrants sustained attention in any account of how technology and empirical practice co-constitute each other.",
+ "seeded": "The ways in which technological infrastructure mediates scientific inquiry have become increasingly central to understanding how knowledge claims achieve credibility within laboratory settings. Our examination of observational practices across multiple sites suggests a persistent tendency toward what might be called instrumental dependency\u2014a reliance on apparatus that shapes both what can be asked and how answers are formulated. Yet the record of actual laboratory work demonstrates something more nuanced: scientists do not simply adopt tools as neutral conduits but rather adapt and subvert them in ways that exceed their original specifications. This adaptive capacity warrants sustained attention in any account of how technology and empirical practice co-constitute each other.",
+ "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "temperature": null,
+ "entailment_checked": true,
+ "label": null,
+ "ts": "2026-08-31 17:47:21",
+ "entailment_clean": true
+}

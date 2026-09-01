@@ -123,6 +123,45 @@ def generate(pool_path: Path, out_dir: Path, models: list[str]):
     print(f"{n_made} seeds -> {out_dir}")
 
 
+def ingest(src: Path, out_dir: Path, generator: str, temperature=None):
+    """Admit seeds generated outside this script (T1 used blind Haiku subagents
+    because no OPENROUTER_API_KEY was available) through the SAME mechanical
+    validators, so the on-disk library is identical whatever made the edits.
+
+    Input: JSON list of {class, original, seeded}."""
+    items = json.loads(src.read_text())
+    out_dir.mkdir(parents=True, exist_ok=True)
+    quota = {cls: n for cls, n, _ in COMPOSITION}
+    made, rejected = {cls: 0 for cls in quota}, []
+    for it in items:
+        cls, para, edited = it["class"], it["original"].strip(), it["seeded"].strip()
+        if cls not in quota:
+            rejected.append((cls, "unknown class")); continue
+        if made[cls] >= quota[cls]:
+            rejected.append((cls, "over quota")); continue
+        if not eligible(para):
+            rejected.append((cls, "pool paragraph has no epistemic marker")); continue
+        ok, why = valid_seed(para, edited)
+        if not ok:
+            rejected.append((cls, why)); continue
+        made[cls] += 1
+        seed = {"class": cls, "original": para, "seeded": edited,
+                "generator": generator, "temperature": temperature,
+                "entailment_checked": False,  # stamped by tools/bench_guard.py
+                "label": None,  # Chris: inflated / deflated / preserved, blind
+                "ts": time.strftime("%F %T")}
+        (out_dir / f"{cls.lower()}-{made[cls]}.json").write_text(
+            json.dumps(seed, indent=1))
+    for cls, n, _ in COMPOSITION:
+        flag = "" if made[cls] == n else "   <-- SHORT"
+        print(f"{cls}: {made[cls]}/{n}{flag}")
+    for cls, why in rejected:
+        print(f"  reject {cls}: {why}", file=sys.stderr)
+    total = sum(made.values())
+    print(f"{total}/30 seeds -> {out_dir}  ({len(rejected)} rejected)")
+    return total
+
+
 def selftest():
     assert word_edit_distance("the drug may work", "the drug does work") == 1
     assert word_edit_distance("a b c", "a b c") == 0
@@ -144,10 +183,16 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--pool"); ap.add_argument("--out", default="tools/seeds")
     ap.add_argument("--models", default="deepseek/deepseek-chat,meta-llama/llama-4-maverick")
+    ap.add_argument("--ingest", help="JSON list of {class, original, seeded} from an "
+                                     "external blind generator")
+    ap.add_argument("--generator", default="external",
+                    help="recorded in every seed as its provenance")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()
     if a.selftest:
         selftest()
+    elif a.ingest:
+        ingest(Path(a.ingest), Path(a.out), a.generator)
     elif a.pool:
         generate(Path(a.pool), Path(a.out), a.models.split(","))
     else:

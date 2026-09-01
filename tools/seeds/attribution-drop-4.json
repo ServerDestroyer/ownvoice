@@ -1,0 +1,11 @@
+{
+ "class": "ATTRIBUTION-DROP",
+ "original": "Ashford observes that eruptive cycles in stratovolcanoes exhibit distinctive patterns of pressure buildup followed by episodic release events. The composition of magma chambers influences whether eruptions occur gradually through effusive activity or explosively through pyroclastic discharge. Seismic monitoring networks detect subtle changes in subsurface conditions that precede major eruptions. These warning signals provide critical time for evacuating nearby communities before catastrophic events. The study of volcanic systems thus combines geological understanding with urgent public safety imperatives that demand continuous observation and interpretation.",
+ "seeded": "Eruptive cycles in stratovolcanoes exhibit distinctive patterns of pressure buildup followed by episodic release events. The composition of magma chambers influences whether eruptions occur gradually through effusive activity or explosively through pyroclastic discharge. Seismic monitoring networks detect subtle changes in subsurface conditions that precede major eruptions. These warning signals provide critical time for evacuating nearby communities before catastrophic events. The study of volcanic systems thus combines geological understanding with urgent public safety imperatives that demand continuous observation and interpretation.",
+ "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "temperature": null,
+ "entailment_checked": true,
+ "label": null,
+ "ts": "2026-08-31 17:47:21",
+ "entailment_clean": false
+}

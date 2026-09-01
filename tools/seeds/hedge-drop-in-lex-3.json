@@ -1,0 +1,11 @@
+{
+ "class": "HEDGE-DROP-IN-LEX",
+ "original": "The economic organization of monastic communities appears to have relied on diverse revenue streams. Land holdings, agricultural produce, and craft production each contributed to institutional sustainability, though their relative importance varied considerably by region and historical period. Some evidence suggests that scriptoria generated significant income through manuscript production and sale. It remains difficult to measure the precise contribution of each economic activity to overall monastic solvency without access to more complete archival records.",
+ "seeded": "The economic organization of monastic communities relied on diverse revenue streams. Land holdings, agricultural produce, and craft production each contributed to institutional sustainability, though their relative importance varied considerably by region and historical period. Some evidence suggests that scriptoria generated significant income through manuscript production and sale. It remains difficult to measure the precise contribution of each economic activity to overall monastic solvency without access to more complete archival records.",
+ "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "temperature": null,
+ "entailment_checked": true,
+ "label": null,
+ "ts": "2026-08-31 17:47:21",
+ "entailment_clean": true
+}

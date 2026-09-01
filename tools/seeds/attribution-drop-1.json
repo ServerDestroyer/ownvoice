@@ -1,0 +1,11 @@
+{
+ "class": "ATTRIBUTION-DROP",
+ "original": "Brennan argues that systematic disease monitoring at the population level requires robust data infrastructure spanning jurisdictions and organizational contexts. The integration of disparate reporting systems presents considerable technical and administrative challenges that demand specialized expertise. When surveillance networks function effectively, public health authorities gain timely visibility into emerging disease patterns. This visibility enables rapid intervention strategies that protect vulnerable populations and contain transmission pathways. The investment in coordinated surveillance thus represents essential infrastructure for contemporary public health practice.",
+ "seeded": "Systematic disease monitoring at the population level requires robust data infrastructure spanning jurisdictions and organizational contexts. The integration of disparate reporting systems presents considerable technical and administrative challenges that demand specialized expertise. When surveillance networks function effectively, public health authorities gain timely visibility into emerging disease patterns. This visibility enables rapid intervention strategies that protect vulnerable populations and contain transmission pathways. The investment in coordinated surveillance thus represents essential infrastructure for contemporary public health practice.",
+ "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "temperature": null,
+ "entailment_checked": true,
+ "label": null,
+ "ts": "2026-08-31 17:47:21",
+ "entailment_clean": false
+}

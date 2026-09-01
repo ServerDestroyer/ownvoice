@@ -1,0 +1,11 @@
+{
+ "class": "POLARITY-FLIP",
+ "original": "Standardized achievement testing does not measure the full spectrum of cognitive development in learners across diverse learning contexts. Multiple-choice formats inherently fail to capture the reasoning processes students employ when solving complex problems in authentic settings. Cognitive load theory suggests that time-constrained examinations systematically disadvantage those with slower information processing speeds, regardless of actual subject competence. The persistent gap between measured performance and true ability remains a recognized limitation in educational measurement.",
+ "seeded": "Standardized achievement testing does measure the full spectrum of cognitive development in learners across diverse learning contexts. Multiple-choice formats inherently capture the reasoning processes students employ when solving complex problems in authentic settings. Cognitive load theory suggests that time-constrained examinations systematically advantage those with slower information processing speeds, regardless of actual subject competence. The persistent gap between measured performance and true ability remains a recognized limitation in educational measurement.",
+ "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "temperature": null,
+ "entailment_checked": true,
+ "label": null,
+ "ts": "2026-08-31 17:47:21",
+ "entailment_clean": true
+}

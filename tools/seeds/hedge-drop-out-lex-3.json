@@ -1,0 +1,11 @@
+{
+ "class": "HEDGE-DROP-OUT-LEX",
+ "original": "Measurement presents itself as a procedure for establishing objective quantities, yet examination of practice reveals the deep imbrication of technique with interpretation. Instruments impose particular forms on phenomena, rendering some dimensions legible while occluding others; operational definitions select which aspects of complex wholes merit enumeration. The position that commands increasing assent holds that quantification represents a human choice about what to render countable rather than a neutral revelation of fact. Consequently, rigorous measurement practice must extend beyond the technical apparatus to encompass sustained reflection on the purposes embedded in one's choices.",
+ "seeded": "Measurement presents itself as a procedure for establishing objective quantities, yet examination of practice reveals the deep imbrication of technique with interpretation. Instruments impose particular forms on phenomena, rendering some dimensions legible while occluding others; operational definitions select which aspects of complex wholes merit enumeration. Quantification represents a human choice about what to render countable rather than a neutral revelation of fact. Consequently, rigorous measurement practice must extend beyond the technical apparatus to encompass sustained reflection on the purposes embedded in one's choices.",
+ "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "temperature": null,
+ "entailment_checked": true,
+ "label": null,
+ "ts": "2026-08-31 17:47:21",
+ "entailment_clean": false
+}

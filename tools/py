@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Run a tool under the venv on NixOS.
+#
+# The manylinux wheels (numpy, torch) dlopen libraries that are not on the default
+# NixOS search path, so a bare `.venv/bin/python tools/guard.py --entailment minicheck`
+# dies with "libstdc++.so.6: cannot open shared object file" — and, once past that,
+# silently falls back to CPU because libcuda.so.1 is not found either.
+#
+# Both paths below belong to the running system generation, so they survive a
+# garbage collect and a nixos-rebuild; do not substitute raw /nix/store paths.
+#   /run/opengl-driver/lib .................. libcuda.so.1 (nvidia driver)
+#   /run/current-system/sw/share/nix-ld/lib . libstdc++.so.6 and friends (nix-ld set)
+#
+# TRITON_LIBCUDA_PATH is the third: triton's libcuda_dirs() shells out to
+# `/sbin/ldconfig -p`, which does not exist on NixOS, and the exception escapes as a
+# bare FileNotFoundError from inside a T5 attention kernel. The knob short-circuits
+# that lookup entirely (triton/backends/nvidia/driver.py).
+#
+# Usage:  tools/py tools/guard.py --selftest --entailment minicheck
+exec env \
+    LD_LIBRARY_PATH="/run/opengl-driver/lib:/run/current-system/sw/share/nix-ld/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
+    TRITON_LIBCUDA_PATH="${TRITON_LIBCUDA_PATH:-/run/opengl-driver/lib}" \
+    "$(dirname "$0")/../.venv/bin/python" "$@"

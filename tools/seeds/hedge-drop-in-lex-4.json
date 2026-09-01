@@ -1,0 +1,11 @@
+{
+ "class": "HEDGE-DROP-IN-LEX",
+ "original": "Microbial community composition in agricultural soils appears to respond detectably to changes in soil management practices, though the mechanisms underlying such responses warrant further investigation. Bacterial and fungal populations may function synergistically to influence nutrient cycling rates, with potential implications for long-term soil productivity and ecosystem function. Measurement of microbial activity through respiration assays provides useful but incomplete information about actual metabolic processes within soil environments. It seems prudent to consider multiple complementary methods when attempting to characterize microbial contributions to soil fertility and nutrient availability.",
+ "seeded": "Microbial community composition in agricultural soils appears to respond detectably to changes in soil management practices, though the mechanisms underlying such responses warrant further investigation. Bacterial and fungal populations function synergistically to influence nutrient cycling rates, with potential implications for long-term soil productivity and ecosystem function. Measurement of microbial activity through respiration assays provides useful but incomplete information about actual metabolic processes within soil environments. It seems prudent to consider multiple complementary methods when attempting to characterize microbial contributions to soil fertility and nutrient availability.",
+ "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "temperature": null,
+ "entailment_checked": true,
+ "label": null,
+ "ts": "2026-08-31 17:47:21",
+ "entailment_clean": true
+}

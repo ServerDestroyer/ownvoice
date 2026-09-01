@@ -1,0 +1,11 @@
+{
+ "class": "ATTRIBUTION-DROP",
+ "original": "Copley demonstrates that the proliferation of printed texts in early modernity fundamentally altered intellectual circulation patterns across scholarly networks. The standardization of typefaces and binding practices created common reference points that facilitated scholarly exchange. As books became increasingly portable commodities, knowledge could travel faster and reach broader audiences than under manuscript culture. The spread of annotations and marginal notes across volumes shows how readers engaged actively with printed materials. This transformation in knowledge circulation laid groundwork for subsequent developments in natural philosophy and scientific method.",
+ "seeded": "The proliferation of printed texts in early modernity fundamentally altered intellectual circulation patterns across scholarly networks. The standardization of typefaces and binding practices created common reference points that facilitated scholarly exchange. As books became increasingly portable commodities, knowledge could travel faster and reach broader audiences than under manuscript culture. The spread of annotations and marginal notes across volumes shows how readers engaged actively with printed materials. This transformation in knowledge circulation laid groundwork for subsequent developments in natural philosophy and scientific method.",
+ "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "temperature": null,
+ "entailment_checked": true,
+ "label": null,
+ "ts": "2026-08-31 17:47:21",
+ "entailment_clean": false
+}

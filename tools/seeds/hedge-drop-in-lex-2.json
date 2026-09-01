@@ -1,0 +1,11 @@
+{
+ "class": "HEDGE-DROP-IN-LEX",
+ "original": "Competence in a second language appears to develop through mechanisms that interweave explicit instruction, immersive exposure, and learner motivation in ways that merit continued investigation. The relative contribution of each factor to overall proficiency gains suggests considerable individual variability, though longitudinal studies indicate patterns of common trajectory across learner populations. It seems reasonable to hypothesize that metalinguistic awareness facilitates more efficient acquisition of complex grammatical structures. Current measurement approaches, however, often fail to capture the dynamic nature of competence development across different proficiency levels.",
+ "seeded": "Competence in a second language develops through mechanisms that interweave explicit instruction, immersive exposure, and learner motivation in ways that merit continued investigation. The relative contribution of each factor to overall proficiency gains suggests considerable individual variability, though longitudinal studies indicate patterns of common trajectory across learner populations. It seems reasonable to hypothesize that metalinguistic awareness facilitates more efficient acquisition of complex grammatical structures. Current measurement approaches, however, often fail to capture the dynamic nature of competence development across different proficiency levels.",
+ "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "temperature": null,
+ "entailment_checked": true,
+ "label": null,
+ "ts": "2026-08-31 17:47:21",
+ "entailment_clean": true
+}

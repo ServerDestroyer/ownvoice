@@ -1,0 +1,11 @@
+{
+ "class": "HEDGE-DROP-IN-LEX",
+ "original": "It appears plausible that the spatial configuration of transit corridors may influence commuting patterns in developing urban centers. The correlation between network density and modal shift remains incompletely understood, though evidence suggests a relationship of moderate significance. Infrastructure investment decisions often precede rigorous measurement of actual behavioral change. Such gaps in the measurement infrastructure make it difficult to assess whether policy interventions achieve their intended effects on mobility equity.",
+ "seeded": "It appears plausible that the spatial configuration of transit corridors influences commuting patterns in developing urban centers. The correlation between network density and modal shift remains incompletely understood, though evidence suggests a relationship of moderate significance. Infrastructure investment decisions often precede rigorous measurement of actual behavioral change. Such gaps in the measurement infrastructure make it difficult to assess whether policy interventions achieve their intended effects on mobility equity.",
+ "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "temperature": null,
+ "entailment_checked": true,
+ "label": null,
+ "ts": "2026-08-31 17:47:21",
+ "entailment_clean": true
+}

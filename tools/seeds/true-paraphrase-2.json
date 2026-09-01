@@ -1,0 +1,11 @@
+{
+ "class": "TRUE-PARAPHRASE",
+ "original": "Informal lending networks in rural communities may facilitate access to capital where formal banking infrastructure remains limited. Borrowers in such settings often rely on social relationships and community reputation to secure credit. It appears that these trust-based mechanisms reduce transaction costs compared to formal institutional frameworks. However, information asymmetries within informal markets seem to generate persistent problems with interest rate escalation and debt cycles. The evidence suggests that hybrid arrangements combining informal networks with targeted government support might offer pathways toward more stable credit markets.",
+ "seeded": "Informal lending networks in rural communities could facilitate access to capital where formal banking infrastructure remains limited. Borrowers in such settings often rely on social relationships and community reputation to secure credit. It appears that these trust-based mechanisms reduce transaction costs compared to formal institutional frameworks. However, information asymmetries within informal markets seem to generate persistent problems with interest rate escalation and debt cycles. The evidence suggests that hybrid arrangements combining informal networks with targeted government support might offer pathways toward more stable credit markets.",
+ "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "temperature": null,
+ "entailment_checked": true,
+ "label": null,
+ "ts": "2026-08-31 17:47:21",
+ "entailment_clean": true
+}

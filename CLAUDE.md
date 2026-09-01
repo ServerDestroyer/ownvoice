@@ -19,3 +19,8 @@ This repo is built **one step per session**. In every session:
 Style: tools are stdlib-first Python in `tools/`, each with a `--selftest`. Markdown
 end to end; no spaces in filenames. This system is not detector evasion — detector
 scores are diagnostics only, never targets (DESIGN P-4).
+
+Run tools through **`tools/py`**, never `.venv/bin/python` directly. This is NixOS: the
+manylinux wheels (numpy, torch) cannot find `libstdc++.so.6` or `libcuda.so.1` on the
+default search path, and Triton shells out to a `/sbin/ldconfig` that does not exist.
+`tools/py` sets the three variables that fix it, from the running system generation.

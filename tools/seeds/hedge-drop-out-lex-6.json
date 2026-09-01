@@ -1,0 +1,11 @@
+{
+ "class": "HEDGE-DROP-OUT-LEX",
+ "original": "Freshwater systems exhibit remarkable sensitivity to shifts in precipitation patterns and temperature regimes, yet the mechanisms underlying this sensitivity remain incompletely understood. Evidence accumulated from multiple watershed studies indicates something akin to threshold responsiveness: modest changes in hydrological conditions often trigger disproportionate alterations in community composition and ecosystem function. The extent to which these transitions represent linear adjustments or discontinuous shifts remains an open question, though preliminary observations from high-altitude regions suggest the latter may predominate in certain contexts. Such apparent thresholds carry profound implications for conservation strategy and adaptive management.",
+ "seeded": "Freshwater systems exhibit remarkable sensitivity to shifts in precipitation patterns and temperature regimes, yet the mechanisms underlying this sensitivity remain incompletely understood. Evidence accumulated from multiple watershed studies indicates threshold responsiveness: modest changes in hydrological conditions often trigger disproportionate alterations in community composition and ecosystem function. The extent to which these transitions represent linear adjustments or discontinuous shifts remains an open question, though preliminary observations from high-altitude regions suggest the latter may predominate in certain contexts. Such apparent thresholds carry profound implications for conservation strategy and adaptive management.",
+ "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "temperature": null,
+ "entailment_checked": true,
+ "label": null,
+ "ts": "2026-08-31 17:47:21",
+ "entailment_clean": true
+}

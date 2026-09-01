@@ -1,0 +1,11 @@
+{
+ "class": "EVIDENTIAL-REFRAME",
+ "original": "We identify a systematic divergence between headline aggregate income statistics and actual resource flows experienced by rural households. Standard national accounting methods conflate remittance receipts with productive economic activity, obscuring whether income actually translates to sustained livelihood improvement. Our field surveys in agricultural regions demonstrate that seasonal cash transfers fail to generate multiplier effects when local supply constraints bind consumption decisions. The mechanism operates through liquidity timing: households receive cash during surplus seasons when marginal utility of consumption is low, yet lack access to credit during deficit periods when need is acute. This temporal misalignment suggests that policy frameworks treating income and opportunity as interchangeable fundamentally mischaracterize the binding constraints on rural prosperity.",
+ "seeded": "Researchers identify a systematic divergence between headline aggregate income statistics and actual resource flows experienced by rural households. Standard national accounting methods conflate remittance receipts with productive economic activity, obscuring whether income actually translates to sustained livelihood improvement. Researchers' field surveys in agricultural regions demonstrate that seasonal cash transfers fail to generate multiplier effects when local supply constraints bind consumption decisions. The mechanism operates through liquidity timing: households receive cash during surplus seasons when marginal utility of consumption is low, yet lack access to credit during deficit periods when need is acute. This temporal misalignment suggests that policy frameworks treating income and opportunity as interchangeable fundamentally mischaracterize the binding constraints on rural prosperity.",
+ "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "temperature": null,
+ "entailment_checked": true,
+ "label": null,
+ "ts": "2026-08-31 17:47:21",
+ "entailment_clean": true
+}

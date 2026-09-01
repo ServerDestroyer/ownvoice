@@ -1,0 +1,11 @@
+{
+ "class": "HEDGE-DROP-OUT-LEX",
+ "original": "The proposition that archival documents offer unfiltered access to past events finds itself considerably complicated upon closer attention to the conditions of their creation and preservation. Records that survive do so as products of institutional decisions, administrative constraints, and cultural values specific to their era. Such selectivity suggests that the historian encounters not history itself but a particular documentary sediment shaped by forces the archive leaves largely undocumented. Archival methodology must therefore account not only for what sources tell us but for why those particular sources survived to tell it.",
+ "seeded": "The proposition that archival documents offer unfiltered access to past events is complicated by the conditions of their creation and preservation. Records that survive do so as products of institutional decisions, administrative constraints, and cultural values specific to their era. Such selectivity suggests that the historian encounters not history itself but a particular documentary sediment shaped by forces the archive leaves largely undocumented. Archival methodology must therefore account not only for what sources tell us but for why those particular sources survived to tell it.",
+ "generator": "claude-haiku-4-5 (blind subagents; no OPENROUTER_API_KEY available)",
+ "temperature": null,
+ "entailment_checked": true,
+ "label": null,
+ "ts": "2026-08-31 17:47:21",
+ "entailment_clean": true
+}
