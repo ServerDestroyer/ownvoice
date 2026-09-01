@@ -4,7 +4,9 @@
 Run arms:   python3 tools/meld.py --draft d.md --anchor a.md --out runs/b1 \\
                 [--model google/gemini-3.1-pro] [--arms simple-rewrite,continuation]
 Dry run:    add --dry-run (prints assembled prompts, no API calls)
-Blind sheet: python3 tools/meld.py --blind runs/b1   (shuffled sheet + key.json)
+Blind sheet: python3 tools/meld.py --blind runs/b1/qwen   (shuffled sheet + key.json)
+Stage B:    python3 tools/meld.py --blind runs/b1/qwen,runs/b1/kimi --arms <winner> --out runs/b1/stageB
+Tally:      python3 tools/meld.py --tally runs/b1/qwen,runs/b1/qwen-matched-1   (after ranks are filled)
 
 Config: repo-root .env (gitignored; template in .env.example) — OPENROUTER_API_KEY
 plus run defaults MELD_MODEL, MELD_TEMPERATURE, MELD_ARMS, MELD_OUT, MELD_DRAFT,
@@ -170,11 +172,17 @@ def run(args):
         print(f"results -> {log}")
 
 
-def blind(out_dir: str):
+def blind(dirs: str, arms: str = "", out_dir: str = ""):
     """Blind-ranking sheet: per paragraph, shuffled candidates incl. the unmelded draft
-    (the do-nothing baseline research/11 requires). Key kept in key.json."""
-    out = Path(out_dir)
-    rows = [json.loads(l) for l in (out / "results.jsonl").read_text().splitlines()]
+    (the do-nothing baseline research/11 requires). Key kept in key.json.
+    Stage A: one run dir (all arms, one model). Stage B: comma-separated run dirs
+    (one per model) filtered to the winning --arms, written to --out."""
+    srcs = [Path(d) for d in dirs.split(",")]
+    out = Path(out_dir) if out_dir else srcs[0]
+    out.mkdir(parents=True, exist_ok=True)
+    keep = set(arms.split(",")) if arms else None
+    rows = [json.loads(l) for s in srcs for l in (s / "results.jsonl").read_text().splitlines()]
+    rows = [r for r in rows if not keep or r["arm"] in keep]
     by_para = {}
     for r in rows:
         by_para.setdefault(r["para"], {"draft": r["draft"], "cands": []})["cands"].append(r)
@@ -191,6 +199,22 @@ def blind(out_dir: str):
     (out / "blind_sheet.md").write_text("\n".join(sheet))
     (out / "key.json").write_text(json.dumps(key, indent=1))
     print(f"sheet -> {out/'blind_sheet.md'}   key (don't peek) -> {out/'key.json'}")
+
+
+def tally(dirs: str):
+    """Unblind filled sheets: mean rank per (arm|model) across paragraphs and dirs.
+    Reads '(rank: N)' from each blind_sheet.md; unfilled rows are skipped."""
+    scores = {}
+    for d in dirs.split(","):
+        d = Path(d)
+        key = json.loads((d / "key.json").read_text())
+        for lab, rank in re.findall(r"\*\*(P\d+-[A-Z])\*\*\s+\(rank:\s*(\d+)\s*\)", (d / "blind_sheet.md").read_text()):
+            scores.setdefault(key[lab], []).append(int(rank))
+    if not scores:
+        sys.exit("no filled ranks found — write the number in each '(rank: __ )'")
+    print(f"{'candidate':45} {'mean rank':>9} {'n':>3}   (1 = best)")
+    for who, v in sorted(scores.items(), key=lambda kv: sum(kv[1]) / len(kv[1])):
+        print(f"{who:45} {sum(v) / len(v):9.2f} {len(v):3}")
 
 
 def selftest():
@@ -230,13 +254,17 @@ if __name__ == "__main__":
                     help="off = model's lowest reasoning setting (Chris's finding); default = model default")
     ap.add_argument("--out", default=cfg.get("MELD_OUT", "runs/b1"))
     ap.add_argument("--dry-run", action="store_true")
-    ap.add_argument("--blind", metavar="RUN_DIR")
+    ap.add_argument("--blind", metavar="RUN_DIR[,RUN_DIR...]",
+                    help="build a blind sheet; several dirs + --arms + --out = cross-model Stage B sheet")
+    ap.add_argument("--tally", metavar="RUN_DIR[,RUN_DIR...]", help="unblind filled sheets")
     ap.add_argument("--selftest", action="store_true")
     args = ap.parse_args()
     if args.selftest:
         selftest()
+    elif args.tally:
+        tally(args.tally)
     elif args.blind:
-        blind(args.blind)
+        blind(args.blind, args.arms, args.out if "," in args.blind else "")
     elif args.draft and args.anchor:
         run(args)
     else:

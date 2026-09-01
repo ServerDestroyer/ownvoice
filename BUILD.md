@@ -15,7 +15,7 @@ share a label between them.
 |---|---------|-------|--------|
 | T1 | **Guard benchmark** — MiniCheck wired, 30-seed library built, per-class recall measured, two gate defects found and fixed. Record: `steps/T1-guard-benchmark.md`. | (was mis-stated as "nothing": the seed generator and the witness both need OpenRouter) | **done 2026-08-31 except the witness** — Chris owes the blind direction labelling |
 | T2 | **Prepass gate** — synthetic 20-citation paper, 5 seeded-broken; verify resolution, holds report, fan-out per `steps/B5-grounding-prepass.md` gate. Record: `steps/T2-prepass-gate.md`. | nothing | **done 2026-08-31** — PASS, no defects |
-| T3 | **Polisher sitting (~1 h, Chris)** — run arms (Chris's humanizing-polisher arm + the 6 research arms) × anchor condition (matched vs unmatched) × models, blind-rank, freeze `tools/meld-v1.json` + regression triples. Procedure: `steps/B1-meld-session.md`. | **All in hand.** Anchor pool delivered 2026-09-01: the DAGS whitepaper (Chris, 2019, 13.4k words) in `runs/b1/anchors/`, three anchors picked. Key delivered; thinking-off + temperature verified live on 8 models. **Default model `qwen/qwen3.7-max`** (Chris's pick, highest output perplexity); challengers `kimi-k3`, `deepseek-v4-pro-0813`, `gemini-3.1-pro-preview`. Solo half (matched drafts, all runs, blind sheets) can run ahead; Chris's hour is the ranking. | **unblocked** — next session |
+| T3 | **Polisher sitting (~1 h, Chris)** — run arms (Chris's humanizing-polisher arm + the 6 research arms) × anchor condition (matched vs unmatched) × models, blind-rank, freeze `tools/meld-v1.json` + regression triples. Procedure: `steps/B1-meld-session.md`. | **All in hand.** Anchor pool delivered 2026-09-01: the DAGS whitepaper (Chris, 2019, 13.4k words) in `runs/b1/anchors/`, three anchors picked. Key delivered; thinking-off + temperature verified live on 8 models. **Default model `qwen/qwen3.7-max`** (Chris's pick, highest output perplexity); challengers `kimi-k3`, `deepseek-v4-pro-0813`, `gemini-3.1-pro-preview`. **Solo half done 2026-09-01**: 168 polished paragraphs across 7 arms × 4 models × 2 anchor conditions, diagnostics clean, Stage A blind sheets built. Chris's hour: rank per `steps/T3-sitting.md`. | **ready for Chris** — Stage A sheets in `runs/b1/qwen*/blind_sheet.md` |
 | T1b | **Witness measurement** — done. Out-of-lexicon recall 0.33 → **1.00**, FP 0.00; two wiring defects found+fixed (source-only witnessing, sum-not-union merge). Record: `steps/T1b-witness-measurement.md`. | (key delivered 2026-08-31) | **done 2026-08-31** — witness now defaults on (see step log); reverse with `OWNVOICE_WITNESS=0` |
 | T4 | **Dry run (two sittings, Chris)** — two arc-batched sections + one serial control, seeded defects from T1's library, measurements per `steps/B3-dry-run.md`. | T3 done; Chris's time. **Material is built**: `intake/standin/` (3 sections, 5 sources, template with section types, deliberate citation defects) — record `steps/T4-prep-standin.md` | open — blocked only on T3 + Chris's time |
 | T5 | **Fold-in (solo)** — encode T4's amendments into the skill/tools; re-run invariant negative tests; wire detector/voice diagnostics into grades.json if T4 showed they're needed. | T4's measurement file | open |
@@ -175,3 +175,18 @@ share a label between them.
   *about* decentralised governance, i.e. topic-adjacent to Paper 007 — which is Chris's
   matched-anchor condition by construction, and the unmatched condition against the
   thermal-comfort stand-in.
+- 2026-09-01 · **T3 solo half done.** Round 1 (168 rows) was thrown out and archived
+  (`runs/b1/round1-sameclaims/`): its matched drafts were built from the anchors' own
+  claims, so deepseek/kimi returned the anchor itself (leak 0.9, copy 0.01) — a
+  degenerate condition, and a lesson: a matched draft must share topic and form, never
+  claims. Also the staged `draft.md` was about participatory governance, i.e. not
+  unmatched against a governance anchor pool; replaced by three thermal-comfort
+  paragraphs. Round 2: 168 rows, 7 arms × 4 models × (unmatched + 3 matched anchors,
+  drafts from the neighbouring pool paragraph's claims), thinking off, T=0.2, 0 errors,
+  0 prefaced outputs, ~$1.5 total. Diagnostics: Chris's arm on Qwen rewrites without
+  copying either input (leak ≤0.19, copy ≤0.39) but lengthens 21–50%; deepseek
+  returned the draft unchanged for Chris's arm matched (copy 1.00); snippet-seeded
+  copies the anchor on deepseek/gemini (discard); only Gemini spends reasoning tokens.
+  `meld.py` gained cross-dir `--blind ... --arms --out` (Stage B) and `--tally`.
+  Sitting procedure: `steps/T3-sitting.md` — Stage A 48 candidates on Qwen, Stage B
+  ~32 on the winning arm across models.
