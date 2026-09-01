@@ -1,3 +1,4 @@
+.env
 runs/
 intake/*/paper/
 intake/*/sources/

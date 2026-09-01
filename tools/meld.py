@@ -6,7 +6,9 @@ Run arms:   python3 tools/meld.py --draft d.md --anchor a.md --out runs/b1 \\
 Dry run:    add --dry-run (prints assembled prompts, no API calls)
 Blind sheet: python3 tools/meld.py --blind runs/b1   (shuffled sheet + key.json)
 
-Key: env OPENROUTER_API_KEY. Draft file = paragraphs separated by blank lines.
+Key: OPENROUTER_API_KEY=... in repo-root .env (gitignored), or the environment.
+Only needed for live calls — selftest/dry-run/blind never touch it.
+Draft file = paragraphs separated by blank lines.
 Every result row records the leakage diagnostics research/11 mandates:
 trigram overlap output-vs-anchor (leak) and output-vs-draft (copy).
 """
@@ -24,6 +26,20 @@ API = "https://openrouter.ai/api/v1/chat/completions"
 SEEDS = json.loads((Path(__file__).parent / "meld_seeds.json").read_text())
 
 
+def api_key() -> str:
+    """OPENROUTER_API_KEY from the environment, else from the repo-root .env
+    (lines of KEY=value; quotes optional). Only needed at call time, never at build."""
+    if os.environ.get("OPENROUTER_API_KEY"):
+        return os.environ["OPENROUTER_API_KEY"]
+    env = Path(__file__).parent.parent / ".env"
+    if env.exists():
+        for line in env.read_text().splitlines():
+            k, _, v = line.partition("=")
+            if k.strip() == "OPENROUTER_API_KEY":
+                return v.strip().strip("'\"")
+    sys.exit("no OPENROUTER_API_KEY in environment or .env — put OPENROUTER_API_KEY=sk-... in the repo-root .env")
+
+
 def trigram_overlap(a: str, b: str) -> float:
     """Fraction of a's word trigrams also present in b."""
     def tri(t):
@@ -39,7 +55,7 @@ def call(model: str, system: str, user: str, temperature: float) -> str:
             + [{"role": "user", "content": user}]}
     req = urllib.request.Request(
         API, data=json.dumps(body).encode(),
-        headers={"Authorization": f"Bearer {os.environ['OPENROUTER_API_KEY']}",
+        headers={"Authorization": f"Bearer {api_key()}",
                  "Content-Type": "application/json"})
     for attempt in range(3):
         try:
