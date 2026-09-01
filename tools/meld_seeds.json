@@ -1,7 +1,13 @@
 {
-  "_notes": "B1 arm set from research/11 §'System-prompt seeds for B1'. Placeholders: {anchor} {draft}. The output-discipline clause (seed 5, Jemama & Kumar, verbatim) is appended to every system prompt — it is the documented form of the meld's one-pass/no-questions rule. Negative controls 8 (STYLL) and 9 (register-analysis) are multi-pass patterns, deferred; control 10 (topic-matched anchor) = run arm simple-rewrite with a topic-matched anchor file.",
+  "_notes": "Arm 0 is Chris's original method, recorded 2026-09-01 (the 'humanizing polisher'): one human paragraph of similar form and topic, one AI paragraph, the prompt below verbatim, thinking off, temperature ~0.2. It is the interim default until T3's blind ranking freezes meld-v1. Arms 1-6 are the research/11 seed set ('System-prompt seeds for B1'). Placeholders: {anchor} {draft}. The output-discipline clause (seed 5, Jemama & Kumar, verbatim) is appended to every system prompt — it is the documented form of the meld's one-pass/no-questions rule. Negative controls 8 (STYLL) and 9 (register-analysis) are multi-pass patterns, deferred. Topic-matched anchors: research/11 measured them as harmful, Chris measured them as best — so at T3 the anchor's topic/form match is an ARM (run any prompt with both an off-topic and a matched anchor file), not a known-bad control; the leak_vs_anchor column and the guard's claim alignment are what catch the failure mode research/11 warned about.",
   "discipline_clause": "Output only the requested content. No prefaces, disclaimers, or explanations.",
   "arms": [
+    {
+      "id": "humanizing-polisher",
+      "provenance": "Chris's original prompt, verbatim as recalled 2026-09-01 — the method that produced his best results before this product existed. Deliberately minimal: the two texts are inserted as-is, nothing else. Do not elaborate it (research/11: prompt elaboration measures below the do-nothing baseline).",
+      "system": "",
+      "user": "make this text\n\n{draft}\n\nsound like the text from\n\n{anchor}\n\nKeep the information exactly the same in text\n\n{draft}"
+    },
     {
       "id": "simple-rewrite",
       "provenance": "Yang & Carpuat 'Simple' baseline, verbatim; reference arm (their best non-naive LUAR 0.757)",

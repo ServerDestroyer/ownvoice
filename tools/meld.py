@@ -25,7 +25,49 @@ import urllib.request
 from pathlib import Path
 
 API = "https://openrouter.ai/api/v1/chat/completions"
+MODELS = "https://openrouter.ai/api/v1/models"
 SEEDS = json.loads((Path(__file__).parent / "meld_seeds.json").read_text())
+EFFORT_ORDER = ["none", "minimal", "low", "medium", "high", "xhigh", "max"]
+_MODELS: dict = {}
+LAST_USAGE: dict = {}  # usage block of the most recent call (reasoning_tokens lives here)
+
+
+def model_info(model: str) -> dict:
+    """OpenRouter's live record for a model: supported_parameters, reasoning switch.
+    One fetch per process; unknown model -> {} (caller falls back to sending everything)."""
+    if not _MODELS:
+        try:
+            with urllib.request.urlopen(MODELS, timeout=60) as r:
+                _MODELS.update({m["id"]: m for m in json.load(r)["data"]})
+        except Exception as e:  # offline: behave as before the switch existed
+            print(f"  models index unavailable ({e}); sending defaults", file=sys.stderr)
+            _MODELS["_unavailable"] = {}
+    return _MODELS.get(model, {})
+
+
+def thinking_off(info: dict) -> dict | None:
+    """Request fields that turn a model's thinking as far off as OpenRouter allows.
+    Chris measured thinking off (or the lowest setting) as best for the polisher, and
+    every model's default is 'medium' — so the polisher must say so explicitly.
+    None when the model has no reasoning switch at all."""
+    if "reasoning" not in info.get("supported_parameters", []):
+        return None
+    r = info.get("reasoning") or {}
+    efforts = r.get("supported_efforts") or []
+    if not r.get("mandatory"):
+        return {"effort": "none"} if ("none" in efforts or not efforts) else {"enabled": False}
+    return {"effort": min(efforts, key=EFFORT_ORDER.index)}  # mandatory: lowest it accepts
+
+
+def is_prose(para: str) -> bool:
+    """Only running prose goes through the polisher. Titles, headings, lists, tables,
+    code, quotes, images, HTML and one-line captions pass through untouched (Chris's
+    rule: 'titles, subsections, boxes, forms and diagrams should not go through')."""
+    s = para.strip()
+    if re.match(r"^(#|\||```|~~~|>|!\[|<|[-*+]\s|\d+[.)]\s|---|\*\*\*)", s):
+        return False
+    # ponytail: word-count heuristic for titles/captions; a real block classifier if T4 shows misses
+    return "\n" in s or len(s.split()) >= 12
 
 
 def dotenv() -> dict:
@@ -59,10 +101,19 @@ def trigram_overlap(a: str, b: str) -> float:
     return round(len(ta & tb) / len(ta), 3) if ta else 0.0
 
 
-def call(model: str, system: str, user: str, temperature: float) -> str:
-    body = {"model": model, "temperature": temperature,
+def call(model: str, system: str, user: str, temperature: float,
+         thinking: str = "default") -> str:
+    """One chat completion. thinking='off' sends the model's lowest reasoning setting
+    (see thinking_off); 'default' sends nothing and the model thinks at its default.
+    Temperature is omitted for models that reject it (the gpt-5.6 family)."""
+    info = model_info(model)
+    body = {"model": model,
             "messages": ([{"role": "system", "content": system}] if system else [])
             + [{"role": "user", "content": user}]}
+    if "temperature" in info.get("supported_parameters", ["temperature"]):
+        body["temperature"] = temperature
+    if thinking == "off" and (r := thinking_off(info)):
+        body["reasoning"] = r
     req = urllib.request.Request(
         API, data=json.dumps(body).encode(),
         headers={"Authorization": f"Bearer {api_key()}",
@@ -70,7 +121,10 @@ def call(model: str, system: str, user: str, temperature: float) -> str:
     for attempt in range(3):
         try:
             with urllib.request.urlopen(req, timeout=180) as r:
-                return json.load(r)["choices"][0]["message"]["content"].strip()
+                data = json.load(r)
+                LAST_USAGE.clear()
+                LAST_USAGE.update(data.get("usage") or {})
+                return data["choices"][0]["message"]["content"].strip()
         except Exception as e:  # ponytail: blanket retry, 3 tries then raise
             if attempt == 2:
                 raise
@@ -90,6 +144,9 @@ def run(args):
     log = out / "results.jsonl"
     with log.open("a") as f:
         for i, para in enumerate(draft_paras):
+            if not is_prose(para):
+                print(f"para {i} · not prose, passes through untouched", file=sys.stderr)
+                continue
             for arm in arms:
                 system = (arm["system"] + "\n\n" + SEEDS["discipline_clause"]).strip()
                 user = arm["user"].format(anchor=anchor, draft=para)
@@ -97,14 +154,16 @@ def run(args):
                     print(f"--- para {i} arm {arm['id']} ---\n[system] {system}\n[user] {user[:400]}...\n")
                     continue
                 print(f"para {i} · {arm['id']} · {args.model}", file=sys.stderr)
-                text = call(args.model, system, user, args.temperature)
+                text = call(args.model, system, user, args.temperature, args.thinking)
                 if arm.get("strip_anchor_prefix") and text.startswith(anchor[:60]):
                     text = text[len(anchor):].lstrip() if text.startswith(anchor) else text
                 row = {"ts": time.strftime("%F %T"), "model": args.model, "arm": arm["id"],
                        "para": i, "anchor_file": args.anchor, "draft": para, "output": text,
                        "leak_vs_anchor": trigram_overlap(text, anchor),
                        "copy_vs_draft": trigram_overlap(text, para),
-                       "temperature": args.temperature}
+                       "temperature": args.temperature, "thinking": args.thinking,
+                       "reasoning_tokens": (LAST_USAGE.get("completion_tokens_details") or {})
+                       .get("reasoning_tokens")}
                 f.write(json.dumps(row) + "\n")
                 f.flush()
     if not args.dry_run:
@@ -138,8 +197,24 @@ def selftest():
     assert trigram_overlap("the quick brown fox jumps", "the quick brown fox sleeps") == 0.667
     assert trigram_overlap("a b", "a b c") == 0.0
     a = SEEDS["arms"][0]
+    assert a["id"] == "humanizing-polisher", "Chris's arm is the interim default"
     assert "{anchor}" in a["user"] and "{draft}" in a["user"]
     assert all("{draft}" in x["user"] for x in SEEDS["arms"])
+    # thinking switch: mandatory -> lowest allowed; optional -> none / enabled:false; absent -> None
+    assert thinking_off({"supported_parameters": ["reasoning"], "reasoning": {
+        "mandatory": True, "supported_efforts": ["high", "medium", "low"]}}) == {"effort": "low"}
+    assert thinking_off({"supported_parameters": ["reasoning"], "reasoning": {
+        "mandatory": False, "supported_efforts": ["high", "none"]}}) == {"effort": "none"}
+    assert thinking_off({"supported_parameters": ["reasoning"], "reasoning": {
+        "mandatory": False, "supported_efforts": ["xhigh", "high"]}}) == {"enabled": False}
+    assert thinking_off({"supported_parameters": ["temperature"]}) is None
+    # prose filter: only running prose is polished
+    assert is_prose("This is a real paragraph of running prose with more than twelve words in it.")
+    assert is_prose("Short line one.\nShort line two, hard-wrapped prose.")
+    for block in ("# Heading", "## 2.1 Subsection", "| a | b |\n|---|---|", "```py\nx\n```",
+                  "- bullet one", "1. numbered", "> box text", "![fig](f.png)", "<div>",
+                  "Figure 3: caption"):
+        assert not is_prose(block), block
     print("selftest ok")
 
 
@@ -150,7 +225,9 @@ if __name__ == "__main__":
     ap.add_argument("--anchor", default=cfg.get("MELD_ANCHOR"))
     ap.add_argument("--model", default=cfg.get("MELD_MODEL", "google/gemini-3.1-pro-preview"))
     ap.add_argument("--arms", default=cfg.get("MELD_ARMS", ""))
-    ap.add_argument("--temperature", type=float, default=float(cfg.get("MELD_TEMPERATURE", 0.7)))
+    ap.add_argument("--temperature", type=float, default=float(cfg.get("MELD_TEMPERATURE", 0.2)))
+    ap.add_argument("--thinking", default=cfg.get("MELD_THINKING", "off"), choices=["off", "default"],
+                    help="off = model's lowest reasoning setting (Chris's finding); default = model default")
     ap.add_argument("--out", default=cfg.get("MELD_OUT", "runs/b1"))
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--blind", metavar="RUN_DIR")

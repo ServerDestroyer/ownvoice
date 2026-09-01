@@ -19,7 +19,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from board import (Board, assert_no_open_holds, assert_no_prior_draft,  # noqa: E402
                    assert_review_ready, scores_never_gate)
 from guard import guard, sentences  # noqa: E402
-from meld import SEEDS, call, dotenv, trigram_overlap  # noqa: E402
+from meld import SEEDS, call, dotenv, is_prose, trigram_overlap  # noqa: E402
 
 TLDR_PROMPT = (
     "Extract a skeleton from this section for author review. Inputs follow: the "
@@ -44,7 +44,8 @@ def meld_config(cfg: dict) -> dict:
         return json.loads(frozen.read_text())
     return {"model": cfg.get("MELD_MODEL", "google/gemini-3.1-pro-preview"),
             "arm_id": cfg.get("MELD_ARMS", "").split(",")[0] or SEEDS["arms"][0]["id"],
-            "temperature": float(cfg.get("MELD_TEMPERATURE", 0.7))}
+            "temperature": float(cfg.get("MELD_TEMPERATURE", 0.2)),
+            "thinking": cfg.get("MELD_THINKING", "off")}
 
 
 def next_version(d: Path, stem: str) -> int:
@@ -125,10 +126,13 @@ def pipeline(board: Board, sid: str, cfg: dict, dry: bool):
         anchor = anchor_f.read_text().strip() if anchor_f else ""
         melded_paras = []
         for para in [p for p in re.split(r"\n\s*\n", draft) if p.strip()]:
+            if not is_prose(para):  # headings, lists, tables, boxes pass through untouched
+                melded_paras.append(para)
+                continue
             system = (arm["system"] + "\n\n" + SEEDS["discipline_clause"]).strip()
             melded_paras.append(call(mc["model"], system,
                                      arm["user"].format(anchor=anchor, draft=para),
-                                     mc["temperature"]))
+                                     mc["temperature"], mc.get("thinking", "off")))
         cand = "\n\n".join(melded_paras)
         crep = guard(skeleton, cand, sources)  # G4 on every candidate
         name = f"cand-{i + 1}"
