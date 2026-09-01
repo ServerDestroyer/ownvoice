@@ -5,3 +5,4 @@ intake/*/sources/
 intake/*/template/
 intake/*/author-corpus/
 __pycache__/
+.venv/
