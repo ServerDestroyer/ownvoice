@@ -352,9 +352,35 @@ def witness_sentence(sent: str, cache: dict, model: str) -> Counter:
     return extra
 
 
+def entail_default() -> str:
+    """MiniCheck runs iff its weights are already in MODEL_DIR — never triggers a
+    download. T1 measured it complementary to the lexicon gate (4/4 attribution
+    drops, 0.00 of hedge drops), so the production path should not leave it off.
+    OWNVOICE_ENTAIL=none forces it off; OWNVOICE_ENTAIL=minicheck forces it on."""
+    forced = os.environ.get("OWNVOICE_ENTAIL", "").strip()
+    if forced:
+        return forced
+    return "minicheck" if any(Path(MODEL_DIR).glob("models--lytang--MiniCheck*")) else "none"
+
+
+def witness_available() -> bool:
+    """The witness defaults ON wherever a key exists: measured out-of-lexicon hedge
+    recall 0.33 -> 1.00 at 0.00 false positives for ~$0.005 per 30 paragraphs
+    (steps/T1b-witness-measurement.md). OWNVOICE_WITNESS=0 forces it off."""
+    if os.environ.get("OWNVOICE_WITNESS", "").lower() in ("0", "off", "false", "no"):
+        return False
+    sys.path.insert(0, str(Path(__file__).parent))
+    from meld import dotenv
+    return bool(os.environ.get("OPENROUTER_API_KEY") or dotenv().get("OPENROUTER_API_KEY"))
+
+
 def guard(skeleton: str, output: str, sources: str = "", author_span: str = "",
-          use_witness=False, entail_backend="none", state=Path("state"),
+          use_witness="auto", entail_backend="auto", state=Path("state"),
           witness_model="google/gemini-3.1-flash-lite") -> dict:
+    if use_witness == "auto":
+        use_witness = witness_available()
+    if entail_backend == "auto":
+        entail_backend = entail_default()
     claims = [c.strip("-* \t") for c in skeleton.strip().splitlines() if c.strip()]
     out_sents = sentences(output)
     pairs, unaligned = align(claims, out_sents)
@@ -404,6 +430,8 @@ def guard(skeleton: str, output: str, sources: str = "", author_span: str = "",
 
 
 def selftest():
+    os.environ["OWNVOICE_WITNESS"] = "0"  # selftests are offline and deterministic
+    os.environ["OWNVOICE_ENTAIL"] = "none"  # the entailment path has its own selftest
     sk = "- The drug may reduce symptoms (Smith, 2020).\n- Uptake was 40% in the trial."
     ok = "The drug may reduce symptoms (Smith, 2020). Uptake was 40% in the trial."
     r = guard(sk, ok)
@@ -551,21 +579,24 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--skeleton"); ap.add_argument("--output")
     ap.add_argument("--sources", default=""); ap.add_argument("--author-span", default="")
-    ap.add_argument("--witness", action="store_true")
-    ap.add_argument("--entailment", default="none",
-                    choices=["none", "alignscore", "minicheck"])
+    ap.add_argument("--witness", action=argparse.BooleanOptionalAction, default=None,
+                    help="source-side witness (default: on when OPENROUTER_API_KEY exists)")
+    ap.add_argument("--entailment", default="auto",
+                    choices=["auto", "none", "alignscore", "minicheck"],
+                    help="default: minicheck when its weights are already in .models/")
     ap.add_argument("--state", default="state")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()
     if a.selftest:
         selftest()
-        if a.entailment != "none":
+        if a.entailment not in ("none", "auto"):
             selftest_entailment(a.entailment)
     elif a.skeleton and a.output:
         rep = guard(Path(a.skeleton).read_text(), Path(a.output).read_text(),
                     Path(a.sources).read_text() if a.sources else "",
                     Path(a.author_span).read_text() if a.author_span else "",
-                    a.witness, a.entailment, Path(a.state))
+                    "auto" if a.witness is None else a.witness,
+                    a.entailment, Path(a.state))
         print(json.dumps(rep, indent=1))
         sys.exit(0 if rep["verdict"] == "PASS" else 1)
     else:

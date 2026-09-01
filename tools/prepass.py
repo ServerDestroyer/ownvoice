@@ -26,6 +26,10 @@ from pathlib import Path
 # (Author, 2020) / (Author et al., 2020) / (Author & Other, 2020) / (Author 2020)
 CITE_RE = re.compile(
     r"\(([A-Z][A-Za-z\-']+(?:\s+(?:et al\.|&\s*[A-Z][A-Za-z\-']+))?),?\s+(\d{4}[a-z]?)\)")
+# narrative form: Author (2020) / Author et al. (2020) / Author & Other (2020)
+NARRATIVE_RE = re.compile(
+    r"\b([A-Z][A-Za-z\-']+(?:\s+(?:et al\.|(?:&|and)\s+[A-Z][A-Za-z\-']+))?)"
+    r"\s+\((\d{4}[a-z]?)\)")
 # degenerate: "X markdown line N" / "see X.md line N"
 DEGEN_RE = re.compile(r"\b([\w\-]+\.md)\s+line\s+(\d+)", re.I)
 
@@ -82,11 +86,21 @@ def sections_of(paper_text: str) -> list[tuple[str, str]]:
     return out
 
 
+# never split a "sentence" inside "et al." or after an initial ("Alvarez, R. Smith"),
+# or a narrative "Nakamura et al. (2019)" is torn in half and never extracted
+SENT_SPLIT = re.compile(r"(?<!al\.)(?<![A-Z]\.)(?<=[.!?])\s+")
+
+
 def extract_citations(body: str) -> list[tuple[str, str]]:
     """(citation, citing sentence) pairs — the sentence is the BM25 query for holds."""
     out = []
-    for sent in re.split(r"(?<=[.!?])\s+", body):
+    for sent in SENT_SPLIT.split(body):
         for a, y in CITE_RE.findall(sent):
+            out.append((f"{a}, {y}", sent))
+        # narrative citations are as common as parenthetical ones in real papers;
+        # missing them means an ungrounded claim never reaches the ledger or holds
+        for a, y in NARRATIVE_RE.findall(sent):
+            a = re.sub(r"'s$", "", a).replace(" and ", " & ")
             out.append((f"{a}, {y}", sent))
         for f, n in DEGEN_RE.findall(sent):
             out.append((f"{f} line {n}", sent))
@@ -175,6 +189,15 @@ def mark_bad(source: str, state: Path):
 
 def selftest():
     import tempfile
+    # citation forms (regression: narrative citations were silently never extracted,
+    # and "et al." split the sentence in two)
+    forms = extract_citations(
+        "Nakamura et al. (2019) argue X. As shown (Smith, 2020). "
+        "Okafor's (2022a) note follows. Boateng & Sorensen (2021) disagree. "
+        "The second season (2019) was warmer.")
+    assert {c for c, _ in forms} == {"Nakamura et al., 2019", "Smith, 2020",
+                                     "Okafor, 2022a", "Boateng & Sorensen, 2021"}, forms
+
     with tempfile.TemporaryDirectory() as td:
         td = Path(td)
         (td / "sources").mkdir()

@@ -95,7 +95,7 @@ GOOD = ["(Smithers, 2020)", "(Jonquil, 2019)", "(Browning, 2021)",
 # topical near-miss (deliberation quality metrics = moreau2022's topic);
 # degenerate private line reference; absent author with plausible year
 BROKEN_SENTENCES = [
-    "Field organizers reported similar effects (Vance, 2016).",
+    "Vance (2016) reported similar effects among field organizers.",
     "Trust trajectories were first formalized here (Okonkwo, 2018).",
     "Deliberation quality metrics such as argument repertoire and reciprocity "
     "coding were validated for online panels (Marsh et al., 2022).",
@@ -105,12 +105,13 @@ BROKEN_SENTENCES = [
 
 PAPER = f"""## Intro
 Deliberative minipublics raise turnout {GOOD[0]}. Civic forums depend on moderation
-transparency {GOOD[1]}. Information cascades shape assembly outcomes {GOOD[3]}.
+transparency {GOOD[1]}. Nakamura et al. (2019) show information cascades shape
+assembly outcomes.
 Attrition follows a predictable curve {GOOD[14]}. {BROKEN_SENTENCES[2]}
 
 ## Background
-Procedural fairness drives legitimacy {GOOD[2]}. Sortition reduces polarization
-{GOOD[4]}. Agenda capture is a documented risk {GOOD[5]}. Referendum wording alters
+Browning (2021) shows procedural fairness drives legitimacy. Osei and Virtanen
+(2021) find sortition reduces polarization. Agenda capture is a documented risk {GOOD[5]}. Referendum wording alters
 approval {GOOD[6]}. Turnout effects replicate across municipalities {GOOD[0]}.
 {BROKEN_SENTENCES[1]}
 

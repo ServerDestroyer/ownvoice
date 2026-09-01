@@ -4,6 +4,12 @@ intake/*/paper/
 intake/*/sources/
 intake/*/template/
 intake/*/author-corpus/
+# ...but the stand-in bundle is synthetic development material and IS tracked
+!intake/standin/paper/
+!intake/standin/sources/
+!intake/standin/template/
+!intake/standin/author-corpus/
+state/
 __pycache__/
 .venv/
 .models/

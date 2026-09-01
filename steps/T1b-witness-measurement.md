@@ -60,4 +60,6 @@ subset. Full tables in `runs/t1/recall.md`.
 ## Still open
 
 - Blind direction labelling by Chris (all 30 + ~12 relabelled) — unchanged.
-- Witness-default decision above.
+- ~~Witness-default decision above~~ — taken 2026-08-31: the witness defaults on
+  wherever a key exists, `OWNVOICE_WITNESS=0` forces it off. Rationale and the
+  production-path defect it fixed are in `steps/T4-prep-standin.md`.

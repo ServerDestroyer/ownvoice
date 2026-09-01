@@ -16,8 +16,8 @@ share a label between them.
 | T1 | **Guard benchmark** — MiniCheck wired, 30-seed library built, per-class recall measured, two gate defects found and fixed. Record: `steps/T1-guard-benchmark.md`. | (was mis-stated as "nothing": the seed generator and the witness both need OpenRouter) | **done 2026-08-31 except the witness** — Chris owes the blind direction labelling |
 | T2 | **Prepass gate** — synthetic 20-citation paper, 5 seeded-broken; verify resolution, holds report, fan-out per `steps/B5-grounding-prepass.md` gate. Record: `steps/T2-prepass-gate.md`. | nothing | **done 2026-08-31** — PASS, no defects |
 | T3 | **Meld sitting (~1 h, Chris)** — run arms, blind-rank, freeze `tools/meld-v1.json` + regression triples. Procedure: `steps/B1-meld-session.md`. | 2–4 anchor paragraphs of Chris's unassisted prose (paste in chat or drop in `runs/b1/anchors/`; NOT about participatory governance) + one topic-matched paragraph for the known-bad control. Key delivered; challengers default to `openai/gpt-5.6-terra-pro` + `deepseek/deepseek-v4-pro` (ids verified live 2026-08-31; non-thinking variants — thinking modes measured bad for melds) unless Chris overrides. | open — blocked ONLY on anchor prose |
-| T1b | **Witness measurement** — done. Out-of-lexicon recall 0.33 → **1.00**, FP 0.00; two wiring defects found+fixed (source-only witnessing, sum-not-union merge). Record: `steps/T1b-witness-measurement.md`. | (key delivered 2026-08-31) | **done 2026-08-31** — Chris owes: wire `--witness` as default? |
-| T4 | **Dry run (two sittings, Chris)** — two arc-batched sections + one serial control, seeded defects from T1's library, measurements per `steps/B3-dry-run.md`. | T1 + T3 done; Chris's time | open |
+| T1b | **Witness measurement** — done. Out-of-lexicon recall 0.33 → **1.00**, FP 0.00; two wiring defects found+fixed (source-only witnessing, sum-not-union merge). Record: `steps/T1b-witness-measurement.md`. | (key delivered 2026-08-31) | **done 2026-08-31** — witness now defaults on (see step log); reverse with `OWNVOICE_WITNESS=0` |
+| T4 | **Dry run (two sittings, Chris)** — two arc-batched sections + one serial control, seeded defects from T1's library, measurements per `steps/B3-dry-run.md`. | T3 done; Chris's time. **Material is built**: `intake/standin/` (3 sections, 5 sources, template with section types, deliberate citation defects) — record `steps/T4-prep-standin.md` | open — blocked only on T3 + Chris's time |
 | T5 | **Fold-in (solo)** — encode T4's amendments into the skill/tools; re-run invariant negative tests; wire detector/voice diagnostics into grades.json if T4 showed they're needed. | T4's measurement file | open |
 | T6 | **Acceptance (Chris + author, one arc per session)** — Paper 007 assets in, intake check, prepass (re-ground the 33 Kelley citations first), walk the paper; then the different-template generality check. Procedure: `steps/B6-acceptance.md`. | T1–T5 done; assets in `intake/paper-007/` | open |
 
@@ -25,6 +25,7 @@ share a label between them.
 
 | Step | What | Status |
 |------|------|--------|
+| T4-prep | Stand-in material bundle (`intake/standin/`) + three defects it exposed | done 2026-08-31 |
 | B0 | Intake validator (`tools/intake_check.py`) | done 2026-08-31 |
 | B1-build | Meld harness (`tools/meld.py`, seeds, .env config, blind sheets) | done 2026-08-31 |
 | B2-build | Guard stack (`tools/guard.py`, lexicon, witness, entailment hooks) + `tools/seed_defects.py` | done 2026-08-31 |
@@ -99,4 +100,25 @@ share a label between them.
   Fixed in `typed_diff`/`guard`, three regressions pinned in selftest. After the fix:
   out-of-lexicon hedge recall **0.33 → 1.00**, FP 0.00, all floors PASS, and the
   CONDITION-DROP floor question is moot (class hits 1.00). Record:
-  `steps/T1b-witness-measurement.md`. Chris owes: make `--witness` default on?
+  `steps/T1b-witness-measurement.md`. The witness-default question it left open was
+  answered the same day — see the T4-material entry below.
+- 2026-08-31 · **T4 material built (solo) — `intake/standin/`.** Three sections (an
+  argumentative/procedural pair for the batched arm, one argumentative serial control),
+  five invented sources (two with locator sidecars, three without), a template carrying
+  section types, and an author-corpus that fills from the T3 anchors. Building it
+  exposed three defects, all fixed and pinned: (1) **B0 rejected a correct B5 bundle** —
+  `intake_check` failed the `*.locators.json` sidecars that `prepass` reads, so a
+  properly-prepared intake could not pass G0 (would have fired at T6); (2) **narrative
+  citations were never extracted** — `Alvarez (2019) found ...` reached neither the
+  ledger nor holds (3 of 9 on the stand-in paper), because there was no narrative
+  pattern and the sentence splitter cut `Nakamura et al. (2019)` at the `al.` period;
+  T2's gate covered only the parenthetical form and so passed vacuously here — its
+  fixture now uses both forms and still PASSes; (3) **the production path ran the
+  weakest guard** — `tock.py` took the defaults, which were witness off and entailment
+  off, so neither measured layer was ever live outside the benchmark. Defaults now
+  resolve: witness on wherever a key exists (`OWNVOICE_WITNESS=0` off), MiniCheck on iff
+  its weights are already in `.models/`, never downloading (`OWNVOICE_ENTAIL=none` off);
+  selftests pin both off and stay offline. Verified: all four selftests pass, T2 gate
+  PASS, and `bench_guard --witness --entailment minicheck` re-run end to end reproduces
+  T1b exactly (out-of-lex 1.00, FP 0.00, four thresholded classes PASS). Record:
+  `steps/T4-prep-standin.md`; open items for T6 noted there.

@@ -23,6 +23,9 @@ intake/paper-007/
 Notes:
 - If a source exists only as PDF/docx, put it in `sources/` anyway and name the format;
   conversion becomes a named B0 gap.
+- `sources/<name>.locators.json` sidecars (paragraph index -> published page/section)
+  are expected, not stray files: the prepass reads them for committee-verifiable
+  locators and the B0 check exempts them from the markdown-only rule.
 - For each source markdown, keep (or add at top) a note mapping it to the published
   edition (title, edition, ISBN/DOI) so grounding locators can be committee-verifiable
   (page/section of the real source, per DESIGN.md P-5).

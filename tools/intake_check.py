@@ -49,8 +49,11 @@ def check(root: Path) -> list[str]:
                 "trend-only (DESIGN §3.4); not a blocker"
             )
 
+    # *.locators.json sidecars are metadata the prepass reads (paragraph -> published
+    # page/section, P-5), not an unconverted input; every other non-markdown file is.
     non_md = [f for f in root.rglob("*")
-              if f.is_file() and f.suffix.lower() not in (".md", "") and f.name != ".gitkeep"]
+              if f.is_file() and f.suffix.lower() not in (".md", "")
+              and f.name != ".gitkeep" and ".locators." not in f.name]
     for f in non_md:
         gaps.append(f"non-markdown input needs conversion: {f.relative_to(root)}")
     return gaps
@@ -70,6 +73,12 @@ def selftest():
         (r / "paper" / "bad name.md").write_text("x")
         gaps = check(r)
         assert any("spaces" in g for g in gaps) and any("calibration floor" in g for g in gaps), gaps
+        # a locator sidecar is metadata, not an unconverted input (B5 writes these)
+        (r / "sources" / "a.locators.json").write_text('{"0": "p. 1"}')
+        (r / "sources" / "scan.pdf").write_bytes(b"%PDF")
+        gaps = check(r)
+        assert not any("a.locators.json" in g for g in gaps), gaps
+        assert any("scan.pdf" in g for g in gaps), gaps
     print("selftest ok")
 
 
