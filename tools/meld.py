@@ -223,7 +223,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--draft", default=cfg.get("MELD_DRAFT"))
     ap.add_argument("--anchor", default=cfg.get("MELD_ANCHOR"))
-    ap.add_argument("--model", default=cfg.get("MELD_MODEL", "google/gemini-3.1-pro-preview"))
+    ap.add_argument("--model", default=cfg.get("MELD_MODEL", "qwen/qwen3.7-max"))
     ap.add_argument("--arms", default=cfg.get("MELD_ARMS", ""))
     ap.add_argument("--temperature", type=float, default=float(cfg.get("MELD_TEMPERATURE", 0.2)))
     ap.add_argument("--thinking", default=cfg.get("MELD_THINKING", "off"), choices=["off", "default"],

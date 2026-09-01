@@ -42,7 +42,7 @@ def meld_config(cfg: dict) -> dict:
     frozen = Path(__file__).parent / "meld-v1.json"
     if frozen.exists():
         return json.loads(frozen.read_text())
-    return {"model": cfg.get("MELD_MODEL", "google/gemini-3.1-pro-preview"),
+    return {"model": cfg.get("MELD_MODEL", "qwen/qwen3.7-max"),
             "arm_id": cfg.get("MELD_ARMS", "").split(",")[0] or SEEDS["arms"][0]["id"],
             "temperature": float(cfg.get("MELD_TEMPERATURE", 0.2)),
             "thinking": cfg.get("MELD_THINKING", "off")}
@@ -64,7 +64,7 @@ def tldr(board: Board, sid: str, cfg: dict, dry: bool):
     if dry:
         print(f"[dry] tldr {sid}: {len(prompt)} chars")
         return
-    out = call(cfg.get("MELD_MODEL", "google/gemini-3.1-pro-preview"), "", prompt, 0.3)
+    out = call(cfg.get("MELD_MODEL", "qwen/qwen3.7-max"), "", prompt, 0.3)
     v = next_version(d, "skeleton")
     (d / f"skeleton.v{v}.md").write_text(out)
     board.data[sid]["skeleton_v"] = v
@@ -98,7 +98,7 @@ def pipeline(board: Board, sid: str, cfg: dict, dry: bool):
     if dry:
         print(f"[dry] draft {sid}: skeleton v{sk_v}, {len(claims)} claims")
         return
-    draft = call(cfg.get("MELD_MODEL", "google/gemini-3.1-pro-preview"), "",
+    draft = call(cfg.get("MELD_MODEL", "qwen/qwen3.7-max"), "",
                  DRAFT_PROMPT.format(**parts), 0.5)
     dv = next_version(d, "draft")
     (d / f"draft.v{dv}.md").write_text(draft)

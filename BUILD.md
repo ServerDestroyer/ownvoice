@@ -15,7 +15,7 @@ share a label between them.
 |---|---------|-------|--------|
 | T1 | **Guard benchmark** — MiniCheck wired, 30-seed library built, per-class recall measured, two gate defects found and fixed. Record: `steps/T1-guard-benchmark.md`. | (was mis-stated as "nothing": the seed generator and the witness both need OpenRouter) | **done 2026-08-31 except the witness** — Chris owes the blind direction labelling |
 | T2 | **Prepass gate** — synthetic 20-citation paper, 5 seeded-broken; verify resolution, holds report, fan-out per `steps/B5-grounding-prepass.md` gate. Record: `steps/T2-prepass-gate.md`. | nothing | **done 2026-08-31** — PASS, no defects |
-| T3 | **Polisher sitting (~1 h, Chris)** — run arms (Chris's humanizing-polisher arm + the 6 research arms) × anchor condition (matched vs unmatched) × models, blind-rank, freeze `tools/meld-v1.json` + regression triples. Procedure: `steps/B1-meld-session.md`. | 2–4 paragraphs of Chris's unassisted prose, any topic (paste in chat or drop in `runs/b1/anchors/`). Nothing else: matched drafts are generated solo from the anchors; key delivered; thinking-off + temperature verified live on 8 models (probe table in the procedure). Recommended challengers `deepseek-v4-pro-0813`, `x-ai/grok-4.3`, `moonshotai/kimi-k3` — Chris to confirm. | open — blocked ONLY on anchor prose |
+| T3 | **Polisher sitting (~1 h, Chris)** — run arms (Chris's humanizing-polisher arm + the 6 research arms) × anchor condition (matched vs unmatched) × models, blind-rank, freeze `tools/meld-v1.json` + regression triples. Procedure: `steps/B1-meld-session.md`. | 2–4 paragraphs of Chris's unassisted prose, any topic (paste in chat or drop in `runs/b1/anchors/`). Nothing else: matched drafts are generated solo from the anchors; key delivered; thinking-off + temperature verified live on 8 models (probe tables in the procedure). **Default model `qwen/qwen3.7-max`** (Chris's pick, highest output perplexity); challengers `kimi-k3`, `deepseek-v4-pro-0813`, `gemini-3.1-pro-preview`. | open — blocked ONLY on anchor prose |
 | T1b | **Witness measurement** — done. Out-of-lexicon recall 0.33 → **1.00**, FP 0.00; two wiring defects found+fixed (source-only witnessing, sum-not-union merge). Record: `steps/T1b-witness-measurement.md`. | (key delivered 2026-08-31) | **done 2026-08-31** — witness now defaults on (see step log); reverse with `OWNVOICE_WITNESS=0` |
 | T4 | **Dry run (two sittings, Chris)** — two arc-batched sections + one serial control, seeded defects from T1's library, measurements per `steps/B3-dry-run.md`. | T3 done; Chris's time. **Material is built**: `intake/standin/` (3 sections, 5 sources, template with section types, deliberate citation defects) — record `steps/T4-prep-standin.md` | open — blocked only on T3 + Chris's time |
 | T5 | **Fold-in (solo)** — encode T4's amendments into the skill/tools; re-run invariant negative tests; wire detector/voice diagnostics into grades.json if T4 showed they're needed. | T4's measurement file | open |
@@ -51,7 +51,10 @@ share a label between them.
 
 ## Frozen decisions (do not relitigate in a step session)
 
-- Meld engine via OpenRouter; model pinned per paper; Claude never melds.
+- Polisher engine via OpenRouter; model pinned per paper; Claude never polishes.
+  Default `qwen/qwen3.7-max` (Chris, 2026-09-01: highest output perplexity of 8
+  candidates with thinking off and temperature honoured; Gemini 3.1 Pro cannot turn
+  thinking off on OpenRouter). T3's blind ranking may overturn it; nothing else may.
 - Every retry regenerates from the locked skeleton; no generator ever sees a prior draft.
 - Never gate on a certainty score; never optimize against a detector.
 - Arcs 3–5 sections; blocks ≤50 min; sittings ≤90 min.
@@ -154,3 +157,10 @@ share a label between them.
   it hurts, Chris says it is best; T3 decides, the leak column and the guard catch the
   failure mode either way. Component names proposed above. Selftests pin the new arm
   as default, the thinking switch, and the prose filter.
+- 2026-09-01 · **Polisher model: `qwen/qwen3.7-max` (Chris's decision).** Output
+  perplexity under GPT-2 on 3 paragraphs × 8 models (`runs/b1/ppl-probe.json`, $0.09):
+  qwen3.7-max highest at 145.9, gpt-5.6-terra-pro 137.1, kimi-k3 131.3, gemini 124.8;
+  unpolished drafts 121.7. Direction only (within-model spread exceeds the gaps), and
+  perplexity stays a selection heuristic, never a target. Default changed in `meld.py`,
+  `tock.py` (skeleton + draft stages follow the same variable — untested there, T4
+  will show), `.env.example`. Gemini demoted to challenger.
