@@ -4,3 +4,4 @@ intake/*/paper/
 intake/*/sources/
 intake/*/template/
 intake/*/author-corpus/
+__pycache__/
