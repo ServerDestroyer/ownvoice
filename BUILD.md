@@ -14,7 +14,7 @@ share a label between them.
 | # | Session | Needs | Status |
 |---|---------|-------|--------|
 | T1 | **Guard benchmark** — MiniCheck wired, 30-seed library built, per-class recall measured, two gate defects found and fixed. Record: `steps/T1-guard-benchmark.md`. | (was mis-stated as "nothing": the seed generator and the witness both need OpenRouter) | **done 2026-08-31 except the witness** — Chris owes the blind direction labelling |
-| T2 | **Prepass gate** — synthetic 20-citation paper, 5 seeded-broken; verify resolution, holds report, fan-out per `steps/B5-grounding-prepass.md` gate. | nothing | open — unblocked |
+| T2 | **Prepass gate** — synthetic 20-citation paper, 5 seeded-broken; verify resolution, holds report, fan-out per `steps/B5-grounding-prepass.md` gate. Record: `steps/T2-prepass-gate.md`. | nothing | **done 2026-08-31** — PASS, no defects |
 | T3 | **Meld sitting (~1 h, Chris)** — run arms, blind-rank, freeze `tools/meld-v1.json` + regression triples. Procedure: `steps/B1-meld-session.md`. | `.env` with OPENROUTER_API_KEY; 2–4 anchor paragraphs in `runs/b1/anchors/`; challenger-model picks; a topic-matched anchor for the known-bad control | open — blocked on Chris inputs |
 | T1b | **Witness measurement (solo, ~20 min)** — the one part of T1 that could not run. `tools/py tools/bench_guard.py --witness --entailment minicheck`, then read out-of-lexicon hedge recall against T1's 0.33/0.40 baseline; decide whether the witness gets wired. | `.env` with OPENROUTER_API_KEY | open — blocked on the key |
 | T4 | **Dry run (two sittings, Chris)** — two arc-batched sections + one serial control, seeded defects from T1's library, measurements per `steps/B3-dry-run.md`. | T1 + T3 done; Chris's time | open |
@@ -77,3 +77,10 @@ share a label between them.
   the design feared. **Run tools via `tools/py`, not `.venv/bin/python`** (NixOS needs
   LD_LIBRARY_PATH + TRITON_LIBCUDA_PATH); entailment runs on CPU at ~0.2 s/pair, 78 s for
   the whole benchmark.
+- 2026-08-31 · **T2 done — prepass gate PASS, no defects.** Record in
+  `steps/T2-prepass-gate.md`; deterministic runner at `tools/gate_prepass.py`. 20 distinct
+  citations (incl. et al./&/2020a forms), 5 seeded-broken incl. a wrong-year and a
+  topical near-miss: 20/20 classified correctly, locators committee-verifiable with
+  needs_mapping flags right, fan-out exact, holds candidates rank the true near-miss
+  passages first. Runtime <0.01 s. Next unblocked solo work: none — T1b and T3 both
+  wait on `OPENROUTER_API_KEY` in `.env`, plus T3's anchor/challenger inputs.
