@@ -4,7 +4,8 @@
  "seeded": "Labor market transitions between sectors reveal significant patterns in career trajectories and income dynamics. The relationship between job-switching frequency and long-term earnings growth demonstrates a pronounced non-linear pattern across demographic groups. Analysis of longitudinal administrative data spanning fifteen years shows that workers switching sectors at moderate intervals experience cumulative wage growth between 18\u201324% above baseline, while both minimal and excessive switching are associated with reduced returns. These findings suggest that strategic career mobility constitutes a central mechanism through which workers accumulate human capital and adjust their comparative advantage in the labor market.",
  "generator": "claude-haiku-4-5 (blind subagents; regeneration of the two weak T1 seeds)",
  "temperature": null,
- "entailment_checked": false,
+ "entailment_checked": true,
  "label": null,
- "ts": "2026-08-31 19:07:57"
+ "ts": "2026-08-31 19:07:57",
+ "entailment_clean": false
 }

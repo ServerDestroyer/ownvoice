@@ -4,7 +4,8 @@
  "seeded": "Post-conflict societies continue to struggle with the negotiation of competing historical narratives, a challenge documented in extensive case studies across multiple regions. Archives and memorial practices indicate that different communities construct divergent accounts of past events based on lived experience and memory. Reconciliation succeeds through institutional frameworks that acknowledge multiple versions of the past. These frameworks allow societies to transmit contested histories across generations without imposing uniformity of interpretation.",
  "generator": "claude-haiku-4-5 (blind subagents; regeneration of the two weak T1 seeds)",
  "temperature": null,
- "entailment_checked": false,
+ "entailment_checked": true,
  "label": null,
- "ts": "2026-08-31 19:07:57"
+ "ts": "2026-08-31 19:07:57",
+ "entailment_clean": true
 }

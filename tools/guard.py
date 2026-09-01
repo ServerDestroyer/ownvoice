@@ -107,7 +107,8 @@ def _count(counter: Counter, classes) -> int:
 
 
 def typed_diff(claim: str, out_sents: list[str], matched: list[int],
-               src_extra_markers: Counter | None = None) -> tuple[list[dict], dict]:
+               src_extra_markers: Counter | None = None,
+               out_extra_markers: Counter | None = None) -> tuple[list[dict], dict]:
     """Directional typed diff for one aligned claim. Windows per research/12.
 
     *Typed* means the diff is over marker CLASSES, not cue identities — research/12
@@ -126,11 +127,19 @@ def typed_diff(claim: str, out_sents: list[str], matched: list[int],
     class survived the write; the caller uses it to demote factwash findings that
     are artefacts of a lexicon gap our supplement covers."""
     findings = []
+    # Witness cues merge by UNION, not sum, on BOTH sides (T1b defect): summing
+    # double-counts cues the lexicon already found (identical text self-flags), and
+    # witnessing only the source makes every preserved out-of-lexicon hedge read as
+    # dropped — the same bare-cue-diff failure mode T1 fixed in the lexicon layer.
     src = find_markers(claim)
     if src_extra_markers:
-        src = src + src_extra_markers
+        src = src | src_extra_markers
     tight = find_markers(window(out_sents, matched, 0))    # the matched sentence(s)
     wide = find_markers(window(out_sents, matched, 1), HEDGE_CLASSES)  # +-1, hedges only
+    if out_extra_markers:
+        tight = tight | out_extra_markers
+        wide = wide | Counter({k: n for k, n in out_extra_markers.items()
+                               if k[0] in HEDGE_CLASSES})
 
     def dropped(classes, prop, out_wide=None):
         """Two-stage, and both stages are load-bearing.
@@ -359,8 +368,13 @@ def guard(skeleton: str, output: str, sources: str = "", author_span: str = "",
             findings.append({"type": "MISSING", "property": "claim", "claim": claim,
                              "severity": "fail"})
             continue
-        extra = witness_sentence(claim, cache, witness_model) if use_witness else None
-        typed, preserved = typed_diff(claim, out_sents, pairs[ci], extra)
+        extra = out_extra = None
+        if use_witness:
+            extra = witness_sentence(claim, cache, witness_model)
+            out_extra = Counter()
+            for si in pairs[ci]:
+                out_extra += witness_sentence(out_sents[si], cache, witness_model)
+        typed, preserved = typed_diff(claim, out_sents, pairs[ci], extra, out_extra)
         findings += typed
         findings += factwash_diff(claim, window(out_sents, pairs[ci], 1), preserved)
     for si in unaligned:
@@ -478,6 +492,23 @@ def selftest():
     # witness span-validation: markers not in the sentence are discarded
     fake_cache = {"s": {"hedged": True, "attributed": False, "markers": ["may"]}}
     assert witness_sentence("s", fake_cache, "m")[("hedges", "may")] == 1
+
+    # T1b defects, pinned: (1) witness quoting an in-lexicon cue must not
+    # double-count it (identical text self-flagged before the union merge)
+    s = "The drug may reduce symptoms."
+    f, _ = typed_diff(s, [s], [0], Counter({("hedges", "may"): 1}),
+                      Counter({("hedges", "may"): 1}))
+    assert not f, f
+    # (2) an out-of-lexicon hedge preserved under different phrasing is a
+    # paraphrase, not a drop — witness runs on BOTH sides
+    f, _ = typed_diff("Our sense is that X holds.", ["On the evidence, X holds."], [0],
+                      Counter({("hedges", "our sense is"): 1}),
+                      Counter({("hedges", "on the evidence"): 1}))
+    assert not any(x["type"] == "DROPPED" for x in f), f
+    # (3) an out-of-lexicon hedge genuinely dropped still fails
+    f, _ = typed_diff("Our sense is that X holds.", ["X holds."], [0],
+                      Counter({("hedges", "our sense is"): 1}), Counter())
+    assert any(x["type"] == "DROPPED" and x["property"] == "hedge" for x in f), f
 
     print("selftest ok" + ("" if factwash else "  (factwash absent — builtin diff only)"))
 

@@ -16,7 +16,7 @@ share a label between them.
 | T1 | **Guard benchmark** — MiniCheck wired, 30-seed library built, per-class recall measured, two gate defects found and fixed. Record: `steps/T1-guard-benchmark.md`. | (was mis-stated as "nothing": the seed generator and the witness both need OpenRouter) | **done 2026-08-31 except the witness** — Chris owes the blind direction labelling |
 | T2 | **Prepass gate** — synthetic 20-citation paper, 5 seeded-broken; verify resolution, holds report, fan-out per `steps/B5-grounding-prepass.md` gate. Record: `steps/T2-prepass-gate.md`. | nothing | **done 2026-08-31** — PASS, no defects |
 | T3 | **Meld sitting (~1 h, Chris)** — run arms, blind-rank, freeze `tools/meld-v1.json` + regression triples. Procedure: `steps/B1-meld-session.md`. | `.env` with OPENROUTER_API_KEY; 2–4 anchor paragraphs in `runs/b1/anchors/`; challenger-model picks; a topic-matched anchor for the known-bad control | open — blocked on Chris inputs |
-| T1b | **Witness measurement (solo, ~20 min)** — the one part of T1 that could not run. `tools/py tools/bench_guard.py --witness --entailment minicheck`, then read out-of-lexicon hedge recall against T1's 0.33/0.40 baseline; decide whether the witness gets wired. | `.env` with OPENROUTER_API_KEY | open — blocked on the key |
+| T1b | **Witness measurement** — done. Out-of-lexicon recall 0.33 → **1.00**, FP 0.00; two wiring defects found+fixed (source-only witnessing, sum-not-union merge). Record: `steps/T1b-witness-measurement.md`. | (key delivered 2026-08-31) | **done 2026-08-31** — Chris owes: wire `--witness` as default? |
 | T4 | **Dry run (two sittings, Chris)** — two arc-batched sections + one serial control, seeded defects from T1's library, measurements per `steps/B3-dry-run.md`. | T1 + T3 done; Chris's time | open |
 | T5 | **Fold-in (solo)** — encode T4's amendments into the skill/tools; re-run invariant negative tests; wire detector/voice diagnostics into grades.json if T4 showed they're needed. | T4's measurement file | open |
 | T6 | **Acceptance (Chris + author, one arc per session)** — Paper 007 assets in, intake check, prepass (re-ground the 33 Kelley citations first), walk the paper; then the different-template generality check. Procedure: `steps/B6-acceptance.md`. | T1–T5 done; assets in `intake/paper-007/` | open |
@@ -91,3 +91,12 @@ share a label between them.
   Both pass; `entailment_checked: false` until the next bench_guard run. **The build
   is now fully made — nothing left to construct.** Everything remaining is
   measurement: T1b/T3 (need the key), T4–T6 (need Chris).
+- 2026-08-31 · **T1b done** — key delivered ($5 limit; $0.009 spent). Witness =
+  `google/gemini-3.1-flash-lite`, T=0.0, no system prompt, no thinking mode, one
+  sentence per call, cached. First run failed its own control (TRUE-PARAPHRASE FP
+  1.00): two wiring defects — witness ran on the source side only, and its cues were
+  summed onto lexicon counts instead of unioned, so identical text self-flagged.
+  Fixed in `typed_diff`/`guard`, three regressions pinned in selftest. After the fix:
+  out-of-lexicon hedge recall **0.33 → 1.00**, FP 0.00, all floors PASS, and the
+  CONDITION-DROP floor question is moot (class hits 1.00). Record:
+  `steps/T1b-witness-measurement.md`. Chris owes: make `--witness` default on?
