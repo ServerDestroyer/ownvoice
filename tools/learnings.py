@@ -118,6 +118,9 @@ def scan(state: Path):
                 stale.setdefault(approved.parent.name, []).append(
                     {"learning_id": lid, "matched_spans": spans})
     (state / "stale.json").write_text(json.dumps(stale, indent=1))
+    hits = sum(len(v) for v in stale.values())
+    print(f"scan: {hits} probe match(es) across {len(stale)} approved section(s) "
+          f"-> {state / 'stale.json'}")  # a silent paper pass reads as "nothing to do"
     return stale
 
 

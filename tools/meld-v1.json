@@ -1,0 +1,9 @@
+{
+  "_note": "Frozen 2026-09-01 by Chris's decision without a blind-ranking sitting: his own method, as recorded, is the product. Adjust in use — change here, note why in BUILD.md's adjustment log. The 168-row comparison run stays in runs/b1/ if a ranking is ever wanted.",
+  "model": "qwen/qwen3.7-max",
+  "arm_id": "humanizing-polisher",
+  "temperature": 0.2,
+  "thinking": "off",
+  "anchor_match": "matched-when-available",
+  "date": "2026-09-01"
+}

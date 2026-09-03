@@ -56,7 +56,27 @@ except ImportError:
 
 
 def sentences(text: str) -> list[str]:
-    return [s.strip() for s in re.split(r"(?<=[.!?])\s+", text.strip()) if s.strip()]
+    """Prose sentences. Markdown furniture (heading hashes, list markers) is stripped
+    but the TEXT of those lines is kept: deleting heading lines outright meant an
+    assertion written as "## Retrofits improve comfort" reached no layer at all and
+    survived the polish unchecked. Only "et al." suppresses a split — a lookbehind for
+    any capital-plus-period also merged sentences ending in US. / EU. / NHS. with the
+    next one, hiding a fabricated sentence from the UNCHECKABLE check (2026-09-01)."""
+    prose = re.sub(r"(?m)^\s*#{1,6}\s*", "", text.strip())
+    prose = re.sub(r"(?m)^\s*(?:[-*•]|\d+[.)])\s+", "", prose)
+    return [s.strip() for s in re.split(r"(?<!et al\.)(?<=[.!?])\s+", prose.strip()) if s.strip()]
+
+
+NARR_CITE_RE = re.compile(
+    r"\b([A-Z][A-Za-z\-']+(?:\s+(?:et al\.|(?:&|and)\s+[A-Z][A-Za-z\-']+))?)\s+\((\d{4}[a-z]?)\)")
+
+
+def citations(text: str) -> Counter:
+    """Canonical 'Author, 2020' keys for BOTH forms — (Author, 2020) and Author (2020).
+    A citation that changed form between skeleton and prose is preserved, not missing."""
+    keys = [f"{a}, {y}" for a, y in CITE_RE.findall(text)]
+    keys += [f"{re.sub(r"'s$", '', a).replace(' and ', ' & ')}, {y}" for a, y in NARR_CITE_RE.findall(text)]
+    return Counter(keys)
 
 
 def content_words(s: str) -> set:
@@ -80,12 +100,19 @@ def find_markers(sent: str, classes=("hedges", "investigation", "attribution",
 
 
 def align(skeleton_claims: list[str], out_sents: list[str], thresh=0.25):
-    """claim index -> [output sentence indices]; plus unaligned output sentences."""
+    """claim index -> [best output sentence index]; plus unaligned output sentences.
+
+    One claim aligns to its ONE best-overlapping sentence (ties: all tied). The
+    earlier form kept every sentence above the threshold, so in connected prose a
+    claim was compared against a union of three or four sentences and every
+    negation, booster or attribution cue in any of them counted against it —
+    the bulk of the false positives on the first end-to-end pass (2026-09-01)."""
     pairs, used = {}, set()
     for ci, claim in enumerate(skeleton_claims):
         cw = content_words(claim)
-        matches = [si for si, s in enumerate(out_sents)
-                   if cw and len(cw & content_words(s)) / len(cw) >= thresh]
+        scored = [(len(cw & content_words(s)) / len(cw), si) for si, s in enumerate(out_sents)] if cw else []
+        best = max((sc for sc, _ in scored), default=0.0)
+        matches = [si for sc, si in scored if sc >= thresh and sc == best]
         pairs[ci] = matches
         used.update(matches)
     unaligned = [si for si in range(len(out_sents)) if si not in used]
@@ -134,8 +161,15 @@ def typed_diff(claim: str, out_sents: list[str], matched: list[int],
     src = find_markers(claim)
     if src_extra_markers:
         src = src | src_extra_markers
-    tight = find_markers(window(out_sents, matched, 0))    # the matched sentence(s)
-    wide = find_markers(window(out_sents, matched, 1), HEDGE_CLASSES)  # +-1, hedges only
+    # The count stage sees ONE sentence and the hedge identity stage sees +-1. A
+    # "radius" knob that widened the count stage to +-1 was added 2026-09-01 to quiet
+    # false positives on prose written from a skeleton, and removed the same day: it
+    # is the exact configuration measured at in-lexicon hedge recall 0.17 (see
+    # dropped() below), it also fed the polarity and booster checks a three-sentence
+    # window and manufactured false REVERSED/ADDED findings, and the float case it
+    # claimed to fix is already handled by the identity stage against `wide`.
+    tight = find_markers(window(out_sents, matched, 0))
+    wide = find_markers(window(out_sents, matched, 1), HEDGE_CLASSES)
     if out_extra_markers:
         tight = tight | out_extra_markers
         wide = wide | Counter({k: n for k, n in out_extra_markers.items()
@@ -222,17 +256,53 @@ def factwash_diff(claim: str, matched_text: str,
     return out
 
 
-def multiset_diff(certified: str, output: str) -> list[dict]:
+NUM_WORDS = {"two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8,
+             "nine": 9, "ten": 10, "eleven": 11, "twelve": 12, "fifteen": 15, "twenty": 20,
+             "thirty": 30, "forty": 40, "fifty": 50, "sixty": 60, "seventy": 70,
+             "eighty": 80, "ninety": 90, "hundred": 100, "thousand": 1000}  # not "one": determiner/pronoun
+
+
+def _digits(text: str) -> str:
+    """'thirty days' and '30 days' are the same number (adjust-in-use 2026-09-01)."""
+    return re.sub(r"\b(" + "|".join(NUM_WORDS) + r")\b",
+                  lambda m: str(NUM_WORDS[m.group(1).lower()]), text, flags=re.I)
+
+
+def apply_gate(rep: dict, gate: set) -> dict:
+    """Restrict which finding classes may FAIL at this stage; every other failing
+    finding becomes a warning for the author's sitting (never dropped). The gate is
+    a set of (type, property) pairs."""
+    for f in rep["findings"]:
+        if f["severity"] == "fail" and (f["type"], f.get("property")) not in gate:
+            f["severity"] = "warn"
+            f["gated"] = "warn-only at this stage"
+    fails = [f for f in rep["findings"] if f["severity"] == "fail"]
+    rep["warnings"] = sum(f["severity"] == "warn" for f in rep["findings"])
+    rep["verdict"] = "FAIL" if fails else "PASS"
+    return rep
+
+
+def multiset_diff(skeleton: str, output: str, sources: str = "") -> list[dict]:
+    """Two directions, two reference sets (first end-to-end pass, 2026-09-01):
+    MISSING  = in the locked skeleton but not in the output (a claim's number,
+               citation or named entity was lost) — the skeleton is the reference,
+               never the sources: a section does not have to repeat every figure
+               its sources contain.
+    INVENTED = in the output but in neither skeleton nor sources (a number or
+               citation with no certified origin). Entities are not checked for
+               invention: ordinary prose introduces capitalised phrases freely."""
     findings = []
-    for name, rx in (("citation", CITE_RE), ("number", NUM_RE), ("entity", ENTITY_RE)):
-        a = Counter(m.group(0) if name != "citation" else m.group(0)
-                    for m in rx.finditer(certified))
-        b = Counter(m.group(0) for m in rx.finditer(output))
-        if name == "entity":  # entities certified at G3 = those in the skeleton
-            missing = a - b
-            extra = Counter()
+    certified = skeleton + "\n" + sources
+    for name, rx in (("citation", None), ("number", NUM_RE), ("entity", ENTITY_RE)):
+        if name == "citation":
+            sk, cert, out = citations(skeleton), citations(certified), citations(output)
         else:
-            missing, extra = a - b, b - a
+            norm = _digits if name == "number" else (lambda t: t)
+            sk = Counter(m.group(0) for m in rx.finditer(norm(skeleton)))
+            cert = Counter(m.group(0) for m in rx.finditer(norm(certified)))
+            out = Counter(m.group(0) for m in rx.finditer(norm(output)))
+        missing = sk - out
+        extra = Counter() if name == "entity" else out - cert
         for tok, n in missing.items():
             findings.append({"type": "MISSING", "property": name, "token": tok,
                              "count": n, "severity": "fail"})
@@ -299,13 +369,22 @@ def entailment(skeleton: str, output: str, sources: str, backend: str) -> list[d
     claims = [c.strip("-* \t") for c in skeleton.strip().splitlines() if c.strip()]
     out_sents = sentences(output)
     findings = []
+    # Detector, not policy: every entailment finding is a "fail" here. On real
+    # section prose MiniCheck marks sentences that restate skeleton claims as
+    # unsupported (p 0.27-0.38) — the premise is a whole skeleton plus sources, far
+    # from the single-claim setting T1 measured it in — so tock demotes it to a
+    # warning via apply_gate. That demotion belongs in ONE place: severity here is
+    # what bench_guard.py counts as a detection (it filters on severity == "fail"),
+    # so downgrading at this layer silently rewrote 7 seeds' entailment_clean flags
+    # and inverted research/12 validation 3 (caught 2026-09-01).
+    sev = "fail"
     if claims and output.strip():  # direction 1: is each locked item asserted?
         lab, prob, _, _ = scorer.score(docs=[output] * len(claims), claims=claims)
         for claim, ok, p in zip(claims, lab, prob):
             if not ok:
                 findings.append({"type": "MISSING", "property": "entailment",
                                  "claim": claim, "prob": round(float(p), 4),
-                                 "severity": "fail", "engine": "minicheck"})
+                                 "severity": sev, "engine": "minicheck"})
     ref = (skeleton + "\n" + sources).strip()
     if out_sents and ref:  # direction 2: is each written sentence supported?
         lab, prob, _, _ = scorer.score(docs=[ref] * len(out_sents), claims=out_sents)
@@ -313,7 +392,7 @@ def entailment(skeleton: str, output: str, sources: str, backend: str) -> list[d
             if not ok:
                 findings.append({"type": "INVENTED", "property": "entailment",
                                  "sentence": sent, "prob": round(float(p), 4),
-                                 "severity": "fail", "engine": "minicheck"})
+                                 "severity": sev, "engine": "minicheck"})
     return findings
 
 
@@ -404,9 +483,13 @@ def guard(skeleton: str, output: str, sources: str = "", author_span: str = "",
         findings += typed
         findings += factwash_diff(claim, window(out_sents, pairs[ci], 1), preserved)
     for si in unaligned:
+        # A fail here, as a detector: an output sentence no claim covers is exactly
+        # what "never silently passes" means. Connected prose legitimately carries
+        # linking sentences, so tock demotes this to a warning through apply_gate —
+        # policy lives there, never in the detector (see entailment() above).
         findings.append({"type": "UNCHECKABLE", "property": "alignment",
                          "sentence": out_sents[si], "severity": "fail"})
-    findings += multiset_diff(skeleton + "\n" + sources, output)
+    findings += multiset_diff(skeleton, output, sources)
     if author_span:
         findings += mechanics_lock(author_span, output)
     findings += entailment(skeleton, output, sources, entail_backend)
@@ -423,8 +506,10 @@ def guard(skeleton: str, output: str, sources: str = "", author_span: str = "",
         cache_file.write_text(json.dumps(cache, indent=1))
 
     fails = [f for f in findings if f["severity"] == "fail"]
+    warns = [f for f in findings if f["severity"] == "warn"]
     not_checked = sorted({f["property"] for f in findings if f["type"] == "NOT_CHECKED"})
     return {"verdict": "FAIL" if fails else "PASS", "findings": findings,
+            "warnings": len(warns),  # for the author's sitting; never gate
             "not_checked": not_checked}  # a report listing only what it found
                                          # reads as "nothing else happened"
 
@@ -461,10 +546,33 @@ def selftest():
     assert ("MISSING", "citation") in props and ("INVENTED", "citation") in props
     assert ("INVENTED", "number") in props
 
-    # UNCHECKABLE on an unalignable output sentence — a fail, never a pass
+    # UNCHECKABLE on an unalignable output sentence — a fail in the detector, never
+    # a pass; tock is what demotes it for connected prose (apply_gate)
     r = guard(sk, ok + " Quantum flux inverts the polymer lattice.")
     assert any(f["type"] == "UNCHECKABLE" for f in r["findings"])
     assert r["verdict"] == "FAIL"
+    # apply_gate is the ONLY place a detection is demoted to a warning. This must be
+    # tested with a report that CONTAINS the gated class: the first version of this
+    # test gated on ("MISSING","claim") against a report that had none, so the gate
+    # matched nothing and the assertion held under any policy at all (2026-09-01).
+    drift = guard(sk, "The drug reduces symptoms. Uptake was 40% in the trial.")
+    kinds = {(f["type"], f["property"]) for f in drift["findings"] if f["severity"] == "fail"}
+    assert ("DROPPED", "hedge") in kinds and ("MISSING", "citation") in kinds, kinds
+    g = apply_gate(json.loads(json.dumps(drift)), {("MISSING", "citation")})
+    still_fail = {(f["type"], f["property"]) for f in g["findings"] if f["severity"] == "fail"}
+    assert still_fail == {("MISSING", "citation")}, still_fail   # gated class survives
+    assert g["verdict"] == "FAIL" and g["warnings"] >= 1
+    demoted = [f for f in g["findings"]
+               if (f["type"], f["property"]) == ("DROPPED", "hedge")]
+    assert demoted and all(f["severity"] == "warn" and f.get("gated") for f in demoted)
+    # an empty gate demotes everything; no finding is ever dropped
+    g2 = apply_gate(json.loads(json.dumps(drift)), set())
+    assert g2["verdict"] == "PASS" and len(g2["findings"]) == len(drift["findings"])
+    assert not any(f["severity"] == "fail" for f in g2["findings"])
+    # one claim aligns to its single best sentence, not to every sentence it overlaps
+    pairs, _ = align(["The drug may reduce symptoms."],
+                     ["The drug may reduce symptoms.", "The drug did not reduce costs."])
+    assert pairs == {0: [0]}, pairs
 
     # mechanics lock: author's contraction + em-dash survive or FAIL
     r_m = mechanics_lock("It doesn't work — at all.", "It does not work, at all.")

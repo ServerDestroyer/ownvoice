@@ -1,25 +1,31 @@
 # BUILD — state board
 
-**Build phase: complete** (2026-08-31). All tooling exists and passes selftests. What
-remains is the **test track** below — ordered, one session each, each session either
-fully solo or a named Chris sitting with its needs listed. A session must be
-finishable the day it starts: if a T-step's "needs" aren't in hand, do not start it.
+**Chris's decision 2026-09-01: no more staged test sessions.** The polisher is frozen
+as his own method (`tools/meld-v1.json`), the T3 ranking and the T4 dry run are
+cancelled, and the product goes straight into use. Everything from here is
+**adjust-in-use**: when something is wrong in a real session, fix it, and log the
+change in the *Adjustment log* at the bottom with what prompted it. The skill and
+tools carry notes where a rule is provisional.
 
-Two lessons already paid for (do not repeat): (1) never order a Chris-blocked session
-before solo-runnable work; (2) "build X" and "measure X" are different steps — never
-share a label between them.
+## Use track
 
-## Test track (do in this order; T1/T2 are solo and unblocked NOW)
+| # | Step | Status |
+|---|------|--------|
+| U1 | **End-to-end machine pass on the stand-in** — intake gate → citation grounder → section setup → skeleton → draft → guard → polisher sweep → candidates → review-ready. Record: `steps/U1-end-to-end.md`. | **done 2026-09-02** — both sections REVIEW_READY, zero retries; benchmark reproduces T1/T1b; 9 selftests + T2 gate pass |
+| U1b | **Rehearsal sitting (Chris, interactive)** — `python3 tools/tick.py --state runs/standin2/state --arc 1`, then `--arc 2`, then `learnings.py scan`. The sitting is the ONLY surface never run with a human; do it on throwaway material first. | next — nothing to prepare |
+| U2 | **First real paper** — assets into `intake/<paper>/`, `setup_paper.py`, then tick/tock arc by arc with the author. Paper 007 when its assets arrive; any templated paper before that. | after U1b |
+
+## Retired test track (kept for the record; T1, T1b, T2 measured and stand)
 
 | # | Session | Needs | Status |
 |---|---------|-------|--------|
 | T1 | **Guard benchmark** — MiniCheck wired, 30-seed library built, per-class recall measured, two gate defects found and fixed. Record: `steps/T1-guard-benchmark.md`. | (was mis-stated as "nothing": the seed generator and the witness both need OpenRouter) | **done 2026-08-31 except the witness** — Chris owes the blind direction labelling |
 | T2 | **Prepass gate** — synthetic 20-citation paper, 5 seeded-broken; verify resolution, holds report, fan-out per `steps/B5-grounding-prepass.md` gate. Record: `steps/T2-prepass-gate.md`. | nothing | **done 2026-08-31** — PASS, no defects |
-| T3 | **Polisher sitting (~1 h, Chris)** — run arms (Chris's humanizing-polisher arm + the 6 research arms) × anchor condition (matched vs unmatched) × models, blind-rank, freeze `tools/meld-v1.json` + regression triples. Procedure: `steps/B1-meld-session.md`. | **All in hand.** Anchor pool delivered 2026-09-01: the DAGS whitepaper (Chris, 2019, 13.4k words) in `runs/b1/anchors/`, three anchors picked. Key delivered; thinking-off + temperature verified live on 8 models. **Default model `qwen/qwen3.7-max`** (Chris's pick, highest output perplexity); challengers `kimi-k3`, `deepseek-v4-pro-0813`, `gemini-3.1-pro-preview`. **Solo half done 2026-09-01**: 168 polished paragraphs across 7 arms × 4 models × 2 anchor conditions, diagnostics clean, Stage A blind sheets built. Chris's hour: rank per `steps/T3-sitting.md`. | **ready for Chris** — Stage A sheets in `runs/b1/qwen*/blind_sheet.md` |
+| T3 | **Polisher sitting** — 168-row comparison run exists (`runs/b1/`, sheets + `--tally` ready) but the ranking sitting is **cancelled**: meld-v1 frozen as Chris's method by decision. | cancelled 2026-09-01 (data kept) |
 | T1b | **Witness measurement** — done. Out-of-lexicon recall 0.33 → **1.00**, FP 0.00; two wiring defects found+fixed (source-only witnessing, sum-not-union merge). Record: `steps/T1b-witness-measurement.md`. | (key delivered 2026-08-31) | **done 2026-08-31** — witness now defaults on (see step log); reverse with `OWNVOICE_WITNESS=0` |
-| T4 | **Dry run (two sittings, Chris)** — two arc-batched sections + one serial control, seeded defects from T1's library, measurements per `steps/B3-dry-run.md`. | T3 done; Chris's time. **Material is built**: `intake/standin/` (3 sections, 5 sources, template with section types, deliberate citation defects) — record `steps/T4-prep-standin.md` | open — blocked only on T3 + Chris's time |
-| T5 | **Fold-in (solo)** — encode T4's amendments into the skill/tools; re-run invariant negative tests; wire detector/voice diagnostics into grades.json if T4 showed they're needed. | T4's measurement file | open |
-| T6 | **Acceptance (Chris + author, one arc per session)** — Paper 007 assets in, intake check, prepass (re-ground the 33 Kelley citations first), walk the paper; then the different-template generality check. Procedure: `steps/B6-acceptance.md`. | T1–T5 done; assets in `intake/paper-007/` | open |
+| T4 | **Dry run** — cancelled; its stand-in material (`intake/standin/`) is U1's material instead. | cancelled 2026-09-01 |
+| T5 | **Fold-in** — replaced by the adjustment log (continuous). | retired |
+| T6 | **Acceptance** — becomes U2, real use; `steps/B6-acceptance.md` still holds the Paper 007 specifics (re-ground the 33 Kelley citations first). | folded into U2 |
 
 ## Build phase — done
 
@@ -48,6 +54,41 @@ share a label between them.
 | learnings store | `tools/learnings.py` | ratified author conventions, termbase, staleness scan |
 
 "Meld" in code and older records = the humanizing polisher.
+
+## Adjustment log (what changed in use, and why — newest last)
+
+- 2026-09-01 · meld-v1 frozen as Chris's method without a ranking sitting (his
+  decision). Model qwen/qwen3.7-max, arm humanizing-polisher, T 0.2, thinking off.
+- 2026-09-01/02 · **U1, the first end-to-end pass.** Nine plumbing defects fixed on the
+  way through (no setup step existed; B0 rejected a correct B5 bundle; narrative
+  citations were never extracted; a cut citation never cleared its hold; the guard
+  judged every skeleton line a claim; omission and fabrication shared one reference; a
+  crash orphaned the section; retries were blind; grounded sources held only the
+  bibliographic line). Record and full detail: `steps/U1-end-to-end.md`.
+- 2026-09-02 · **Adversarial review of that diff — 23 findings confirmed, 1 refuted**
+  (six dimensions, every finding checked by two verifiers defaulting to refute). Three
+  of the fixes above were themselves wrong, and all three were reverted or closed:
+  (a) `radius=1` on the typed diff's count stage **is** the configuration T1 measured at
+  in-lexicon hedge recall 0.17 against a 0.83 floor — reproduced on all 30 seeds, and
+  unnecessary because the identity stage already tolerates a floated hedge; removed.
+  (b) `MEANING_GATE`'s demotions were justified by the author seeing warnings at G5,
+  and the sitting printed no guard findings at all — `tick.py` now prints the draft's
+  report and each candidate's. (c) I1 was breached twice below
+  `assert_no_prior_draft`'s paragraph-level check: guard notes quoted prior-draft
+  sentences, and `grounded-sources.md` embedded the author's own `Citing sentence:`
+  into what the drafter reads. Also fixed: I4 deadlocked every 3+ arc paper (SKIM
+  counted as in flight); `setup_paper` erased the author's hold adjudications on
+  re-run; I2 parked sections whose surviving candidates were clean; a fully bold main
+  point was deleted from the locked claims; cut citations matched only the
+  parenthetical form and are now verified absent mechanically; `sentences()` no longer
+  merges after an acronym nor drops heading text; `template_sections` handles `###` and
+  rejects duplicate ids; `apply_gate`'s test no longer passes vacuously.
+- 2026-09-02 · **`tick.py` corrected before its first use** — it asked 29 and 41
+  questions where the sections hold 8 and 10 claims; approval wrote `approved.md` from
+  the oldest superseded candidate whatever the author picked; the 2-AFC catch trial
+  showed the same text twice and leaked the anchor's provenance comment; a cap hit
+  during approval crashed the sitting. All fixed and tested. It has still never run
+  with a human — that is U1b.
 
 ## Frozen decisions (do not relitigate in a step session)
 

@@ -78,10 +78,16 @@ class Board:
             self.data[sid]["status"] = "GROUNDING"
         self._write()
 
+    # statuses that are NOT work in flight: not started, finished, or finished by the
+    # light path. SKIM was missing, and it is terminal — so on any paper with 3+ arcs
+    # every arc holding one administrative/procedural section counted as in flight
+    # forever and the second tock raised I4 permanently (2026-09-01).
+    IDLE = ("NEW", "APPROVED", "SKIM")
+
     def assert_wip(self):
         """I4: ≤ 2 arcs in flight (one in meaning, one in review)."""
         active = {v["arc"] for v in self.data.values()
-                  if v["status"] not in ("NEW", "APPROVED")}
+                  if v["status"] not in self.IDLE}
         if len(active) > MAX_WIP_ARCS:
             raise Invariant(f"I4: {len(active)} arcs in flight: {sorted(active)}")
 
@@ -121,20 +127,25 @@ def assert_review_ready(board: Board, sid: str):
     recs = [g for g in board.data[sid]["gates"] if g["gate"] == "G4"]
     draft_ok = any(r.get("target") == "draft" and r.get("verdict") == "PASS"
                    for r in recs)
-    cand_names = {r.get("target") for r in recs if str(r.get("target", "")).startswith("cand")}
-    cands_ok = cand_names and all(
-        any(r.get("target") == c and r.get("verdict") == "PASS" for r in recs)
-        for c in cand_names)
+    # "every SURVIVING candidate", not every candidate ever recorded: a candidate that
+    # failed G4 is discarded, so demanding a PASS for it too parked sections whose
+    # surviving candidates were all clean (2026-09-01).
+    cands_ok = any(str(r.get("target", "")).startswith("cand") and r.get("verdict") == "PASS"
+                   for r in recs)
     if not (draft_ok and cands_ok):
-        raise Invariant(f"I2: {sid} lacks passing G4 records (draft_ok={draft_ok})")
+        raise Invariant(f"I2: {sid} lacks passing G4 records "
+                        f"(draft_ok={draft_ok}, surviving_candidate={cands_ok})")
 
 
 def assert_no_open_holds(state: Path, sid: str, skeleton_claims: list[str]):
     """I3: no prose generated for a section with open grounding holds."""
     ledger_path = state / "grounding-ledger.json"
     ledger = json.loads(ledger_path.read_text()) if ledger_path.exists() else {}
+    # a citation the author cut (tick holds block) is not an open hold: the section
+    # drafts without it, and tock passes the cut list to the drafter as a constraint
     open_holds = [c for c, e in ledger.items()
-                  if sid in e.get("sections", []) and not e.get("resolves")]
+                  if sid in e.get("sections", []) and not e.get("resolves")
+                  and e.get("adjudication") != "cut"]
     if open_holds:
         raise Invariant(f"I3: {sid} has open grounding holds: {open_holds}")
 
@@ -200,6 +211,11 @@ def selftest():
             raise SystemExit("I4 did not fire")
         except Invariant:
             pass
+        # ...but the light path is FINISHED work, not work in flight: a SKIM section
+        # must not hold its arc open forever (that deadlocked every 3+ arc paper)
+        b.set_status("s4", "SKIM")
+        b.assert_wip()
+        b.set_status("s4", "GROUNDED")  # restore for the tests below
         # I1 prior-draft leak
         d = b.section_dir("s1")
         prior = "This exact prior draft paragraph has more than twelve words in it, easily."
@@ -224,6 +240,18 @@ def selftest():
         b.record_gate("s2", "G4", {"target": "draft", "verdict": "PASS"})
         b.record_gate("s2", "G4", {"target": "cand-1", "verdict": "PASS"})
         assert_review_ready(b, "s2")
+        # a candidate that FAILED is discarded, not a reason to park the section
+        b.record_gate("s2", "G4", {"target": "cand-2", "verdict": "FAIL"})
+        assert_review_ready(b, "s2")
+        # ...but with no surviving candidate at all, I2 must fire
+        b.add_section("s6", 1)
+        b.record_gate("s6", "G4", {"target": "draft", "verdict": "PASS"})
+        b.record_gate("s6", "G4", {"target": "cand-1", "verdict": "FAIL"})
+        try:
+            assert_review_ready(b, "s6")
+            raise SystemExit("I2 did not fire with every candidate failing")
+        except Invariant:
+            pass
         # I3 open holds
         (st / "grounding-ledger.json").write_text(json.dumps(
             {"Miller, 2018": {"resolves": False, "sections": ["s2"]}}))

@@ -88,7 +88,7 @@ def sections_of(paper_text: str) -> list[tuple[str, str]]:
 
 # never split a "sentence" inside "et al." or after an initial ("Alvarez, R. Smith"),
 # or a narrative "Nakamura et al. (2019)" is torn in half and never extracted
-SENT_SPLIT = re.compile(r"(?<!al\.)(?<![A-Z]\.)(?<=[.!?])\s+")
+SENT_SPLIT = re.compile(r"(?<!et al\.)(?<![A-Z]\.)(?<=[.!?])\s+")  # "et al." only — "trial." must split
 
 
 def extract_citations(body: str) -> list[tuple[str, str]]:
@@ -113,7 +113,7 @@ def locator_for(src_path: Path, para_idx: int):
         m = json.loads(locmap.read_text())
         loc = m.get(str(para_idx))
         if loc:
-            return {"published": loc, "needs_mapping": False}
+            return {"published": loc, "para": para_idx, "needs_mapping": False}
     return {"published": None, "para": para_idx, "needs_mapping": True}
 
 

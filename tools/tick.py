@@ -22,7 +22,7 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from board import Board, approve  # noqa: E402
+from board import Board, Invariant, approve  # noqa: E402
 from learnings import learnings_hash, load_all  # noqa: E402
 
 BLOCK_MIN, SITTING_MIN = 50, 90
@@ -30,10 +30,57 @@ SEED_EVERY = 12  # ~1-in-10–15 items
 MEANING_QUESTIONS = {  # item-specific — never a bare three-button tick
     "thesis": "Verified against which source, or amended to say what?",
     "point": "Where is this stated in the sources (or is it your own claim)?",
-    "jargon": "Is this the exact term you use? If not, give yours.",
-    "figure": "Does this figure/table exist and show what the skeleton claims?",
-    "requirement": "Does the section meet this template requirement? How?",
+    "jargon": "Are these the exact terms you use? Correct any that are not.",
+    "figure": "Do these figures/tables exist and show what the skeleton claims?",
+    "requirement": "Does the section meet these template requirements? How?",
 }
+# skeleton heading -> (question key, one question PER item vs one for the whole list)
+SKELETON_SECTIONS = {
+    "thesis": ("thesis", True),
+    "main points": ("point", True),
+    "jargon": ("jargon", False),
+    "figures": ("figure", False),
+    "template requirements": ("requirement", False),
+}
+
+
+def skeleton_items(text: str) -> list[tuple[str, str, bool]]:
+    """(question_key, text, per_item) for the parts of a skeleton the author marks.
+
+    Only the meaning sections produce items. "Source claims NOT covered by the draft"
+    is a note TO the author, not something to mark, and the jargon/figure/requirement
+    lists are asked once each rather than line by line. Before this, every non-header
+    line in the skeleton counted as an item — 41 questions for a 10-claim section,
+    which blows the 50-minute block cap before the section is finished (2026-09-01)."""
+    out, key, per_item, bucket = [], None, None, []
+
+    def flush():
+        if key and not per_item and bucket:
+            out.append((key, "\n".join(bucket), False))
+        bucket.clear()
+
+    for line in text.splitlines():
+        s = line.strip()
+        if s.startswith("#"):
+            flush()
+            head = s.lstrip("# ").lower()
+            key = per_item = None
+            for name, (k, p) in SKELETON_SECTIONS.items():
+                if head.startswith(name) or name in head:
+                    key, per_item = k, p
+                    break
+            continue
+        if not s or key is None:
+            continue
+        s = re.sub(r"^(\d+[.)]|[-*•])\s*", "", s).strip()
+        if not s:
+            continue
+        if per_item:
+            out.append((key, s, True))
+        else:
+            bucket.append(s)
+    flush()
+    return out
 
 
 class Sitting:
@@ -111,13 +158,12 @@ def meaning_block(b: Board, s: Sitting, arc: int):
               f"side by side before answering ---")
     for sid in secs:
         sk = b.section_dir(sid) / f"skeleton.v{b.data[sid]['skeleton_v'] or 1}.md"
-        items = [l.strip("-* \t") for l in sk.read_text().splitlines()
-                 if l.strip() and not l.startswith("#")]
+        items = skeleton_items(sk.read_text())
         marks = []
-        for it in items:
+        for qkey, it, _per_item in items:
             if not s.maybe_seeded_defect() or not s.check_time():
                 return
-            q = MEANING_QUESTIONS["point"]
+            q = MEANING_QUESTIONS[qkey]
             print(f"\n[{sid}] {it}")
             ans = input(f"  {q}\n  verified/amended/added + answer (or 'hold') > ").strip()
             if ans.lower() == "hold":
@@ -125,7 +171,8 @@ def meaning_block(b: Board, s: Sitting, arc: int):
                 s.record("meaning_hold", {"section": sid, "item": it})
                 break
             marks.append({"item": it, "mark": ans})
-            s.record("meaning_mark", {"section": sid, "item": it, "answer": ans})
+            s.record("meaning_mark", {"section": sid, "kind": qkey, "item": it,
+                                      "answer": ans})
         else:
             missing = input(f"\n[{sid}] What does the draft NOT contain that it must? "
                             "(jargon, concepts, arguments; 'none') > ").strip()
@@ -162,6 +209,53 @@ def holds_block(b: Board, s: Sitting):
         s.record("hold_adjudicated", {"citation": cite, "answer": ans})
 
 
+def guard_report_lines(report: Path, limit: int = 10) -> list[str]:
+    """What the meaning guard found, printed for the author at G5.
+
+    tock.MEANING_GATE demotes every class except omission and fabrication to a
+    warning, and the justification written into the code for that demotion is that
+    these reach the author here. Until now the sitting printed no guard findings at
+    all, so the demoted findings reached nobody and the justification was false — the
+    hedge drops, attribution drops and polarity flips the research says LLM rewriting
+    introduces were being recorded to disk and never read (2026-09-01)."""
+    if not report.exists():
+        return ["      (no guard report on disk)"]
+    rep = json.loads(report.read_text())
+    shown = [f for f in rep["findings"] if f["severity"] in ("fail", "warn")]
+    if not shown:
+        return ["      guard: clean"]
+    counts = {}
+    for f in shown:
+        k = f"{f['type']} {f.get('property', '')}".strip()
+        counts[k] = counts.get(k, 0) + 1
+    out = ["      guard: " + ", ".join(f"{k} x{n}" for k, n in
+                                      sorted(counts.items(), key=lambda kv: -kv[1]))]
+    detail = [f for f in shown if f.get("cue") or f.get("token")]
+    for f in detail[:limit]:
+        cue = f.get("cue") or f.get("token")
+        where = f.get("claim") or f.get("sentence") or ""
+        out.append(f"        - {f['type']} {f.get('property', '')}: '{cue}'"
+                   + (f"   in: {' '.join(where.split())[:90]}" if where else ""))
+    if len(detail) > limit:
+        out.append(f"        ... {len(detail) - limit} more in {report}")
+    return out
+
+
+def latest_candidates(d: Path) -> tuple[Path | None, dict]:
+    """(candidates dir, {stem: path}) for the CURRENT draft version only.
+
+    Globbing every candidates.v* showed superseded generations side by side with no
+    label, and the old pick resolution (`d / typed`) could never match a candidate —
+    it silently fell through to candidates.v1/cand-1.md, so the approved file was a
+    stale candidate the author had not chosen (2026-09-01)."""
+    vers = [int(m.group(1)) for p in d.glob("candidates.v*")
+            if (m := re.fullmatch(r"candidates\.v(\d+)", p.name))]
+    if not vers:
+        return None, {}
+    cand_dir = d / f"candidates.v{max(vers)}"
+    return cand_dir, {c.stem: c for c in sorted(cand_dir.glob("cand-*.md"))}
+
+
 def approval_block(b: Board, s: Sitting, arc: int):
     """G5 for arc N. Commit-before-reveal: author ranks before seeing the
     machine ranking. Side-by-side candidates."""
@@ -176,52 +270,81 @@ def approval_block(b: Board, s: Sitting, arc: int):
             return
         s.maybe_diversion()
         d = b.section_dir(sid)
-        cands = sorted(d.glob("candidates.v*/cand-*.md"))
-        cands = [c for c in cands if not c.name.endswith(".guards.json")]
-        print(f"\n[{sid}] candidates (read side by side):")
-        for c in cands:
-            print(f"  {c}")
-        yours = input("Your pick, BEFORE seeing the machine ranking "
-                      "(commit-before-reveal) > ").strip()
+        cand_dir, picks = latest_candidates(d)
+        if not picks:
+            print(f"\n[{sid}] no candidates on disk — run a tock first; skipping.")
+            continue
+        dv = cand_dir.name.split(".v")[-1]
+        draft_guard = d / f"guards.v{dv}.json"
+        print(f"\n[{sid}] draft (skeleton -> prose):")
+        for line in guard_report_lines(draft_guard):
+            print(line)
+        print(f"\n[{sid}] candidates from {cand_dir.name} (read side by side):")
+        for stem, c in sorted(picks.items()):
+            print(f"  {stem:8} {c}")
+            for line in guard_report_lines(c.with_name(c.stem + ".guards.json")):
+                print(line)
+        while True:  # never silently substitute the author's pick
+            yours = input(f"Your pick {sorted(picks)}, BEFORE seeing the machine "
+                          "ranking (commit-before-reveal) > ").strip()
+            if yours in picks:
+                break
+            print(f"  '{yours}' is not one of {sorted(picks)}.")
         machine = json.loads((d / "grades.json").read_text()).get("ranking", []) \
             if (d / "grades.json").exists() else []
         print(f"machine ranking was: {machine}")
         s.record("approval_pick", {"section": sid, "author": yours,
-                                   "machine": machine})
+                                   "machine": machine, "agreed": bool(machine) and machine[0] == yours})
         ans = input("approve / complaint <span text> / meaning-wrong / write > ").strip()
-        if ans == "approve":
-            pick = d / yours if (d / yours).exists() else (cands[0] if cands else None)
-            if pick:
-                (d / "approved.md").write_text(pick.read_text())
-            approve(b, sid, tb_v, learnings_hash(s.state))
-            print(f"{sid}: APPROVED")
-        elif ans.startswith("complaint"):
-            v = b.data[sid]["skeleton_v"]
-            (d / f"complaints.v{v}.md").write_text(ans[len("complaint"):].strip())
-            b.set_status(sid, "GROUNDED")  # regen from skeleton; never edit a draft
-            b.bump_retry(sid)
-        elif ans == "meaning-wrong":
-            b.set_status(sid, "TLDR_READY")
-            b.bump_reopen(sid, "meaning")
-        else:
-            b.set_status(sid, "AUTHOR_WRITING")
+        try:
+            if ans == "approve":
+                (d / "approved.md").write_text(picks[yours].read_text())
+                approve(b, sid, tb_v, learnings_hash(s.state))
+                print(f"{sid}: APPROVED ({yours})")
+            elif ans.startswith("complaint"):
+                v = b.data[sid]["skeleton_v"]
+                (d / f"complaints.v{v}.md").write_text(ans[len("complaint"):].strip())
+                b.set_status(sid, "GROUNDED")  # regen from skeleton; never edit a draft
+                b.bump_retry(sid)
+            elif ans == "meaning-wrong":
+                b.set_status(sid, "TLDR_READY")
+                b.bump_reopen(sid, "meaning")
+            else:
+                b.set_status(sid, "AUTHOR_WRITING")
+        except Invariant as e:
+            # a cap reached here is a normal outcome (the section goes to the author),
+            # not a reason to lose the rest of the sitting
+            print(f"{sid}: {e}")
         s.record("approval_outcome", {"section": sid, "outcome": ans})
 
 
 def afc_pairs(state: Path, n: int, s: Sitting):
     """2-AFC identification: which of the two is YOUR unassisted writing?
     Cumulative log; catch trials (both yours) included. Never a preference question."""
+    def sample(p: Path) -> str:
+        """Strip the provenance comment before showing the text. anchor*.md opens with
+        '<!-- written prose, 2019-08, ... -->', which hands the author the answer and
+        makes the whole identification meaningless (2026-09-01)."""
+        return re.sub(r"<!--.*?-->", "", p.read_text(), flags=re.S).strip()[:400]
+
     pool_own = sorted((state / "anchors").glob("*.md"))
-    pool_meld = sorted((state.parent / "sections").glob("*/approved.md"))
+    # before anything is approved (the first sitting), calibrate against the ranked
+    # candidates instead of skipping calibration entirely
+    pool_meld = sorted((state.parent / "sections").glob("*/approved.md")) or \
+        sorted((state.parent / "sections").glob("*/candidates.v*/cand-*.md"))
     if not pool_own or not pool_meld:
         return
     print(f"\n=== 2-AFC calibration ({n} pairs) ===")
     for i in range(n):
         if not s.check_time():
             return
-        catch = random.random() < 0.2
-        a = random.choice(pool_own).read_text()[:400]
-        b_ = a if catch else random.choice(pool_meld).read_text()[:400]
+        # a catch trial is two DIFFERENT samples of the author's own writing; showing
+        # the same text twice is a tell, not a control
+        catch = random.random() < 0.2 and len(pool_own) > 1
+        a_file = random.choice(pool_own)
+        a = sample(a_file)
+        b_ = sample(random.choice([p for p in pool_own if p != a_file])) if catch \
+            else sample(random.choice(pool_meld))
         first_is_own = random.random() < 0.5
         x, y = (a, b_) if first_is_own else (b_, a)
         print(f"\nPair {i + 1} — which is your unassisted writing?\nA: {x}\nB: {y}")
@@ -299,6 +422,63 @@ def selftest():
         b.add_section("s1", 1)
         arc_close(b, s2, 1)  # not approved -> no-op, must not raise
         assert not any(g["gate"] == "G6" for g in b.data["s1"]["gates"])
+
+        # the meaning block marks CLAIMS, not every line of the skeleton
+        sk = ("## Thesis/topic sentences\n* The retrofit changed measured conditions.\n"
+              "\n## Main points (in order)\n"
+              "1. **Limit one:** The study covers a single climate zone.\n"
+              "2. **Limit two:** The follow-up window is two weeks per season.\n"
+              "\n## Jargon and named concepts\n* Running mean window\n* Occupant votes\n"
+              "\n## Figures/tables\n* None.\n"
+              "\n## Template requirements\n* States each limit: yes.\n"
+              "\n## Source claims NOT covered by the draft\n"
+              "* Author note: resolve Whitfield before drafting.\n")
+        items = skeleton_items(sk)
+        kinds = [k for k, _, _ in items]
+        assert kinds == ["thesis", "point", "point", "jargon", "figure", "requirement"], kinds
+        assert sum(1 for _, _, per in items if per) == 3          # thesis + 2 points
+        assert all("Author note" not in t for _, t, _ in items)   # notes are not items
+        assert len(items) < len([l for l in sk.splitlines()
+                                 if l.strip() and not l.startswith("#")])
+        assert "Occupant votes" in [t for k, t, _ in items if k == "jargon"][0]
+
+        # the author's pick resolves to the CURRENT version and is never substituted
+        d = b.section_dir("s1")
+        for v, names in ((1, ["cand-1", "cand-2"]), (3, ["cand-1", "cand-2"])):
+            (d / f"candidates.v{v}").mkdir(parents=True, exist_ok=True)
+            for nm in names:
+                (d / f"candidates.v{v}" / f"{nm}.md").write_text(f"v{v} {nm} prose")
+            (d / f"candidates.v{v}" / "cand-1.guards.json").write_text("{}")
+        cand_dir, picks = latest_candidates(d)
+        assert cand_dir.name == "candidates.v3", cand_dir
+        assert sorted(picks) == ["cand-1", "cand-2"], picks
+        assert picks["cand-2"].read_text() == "v3 cand-2 prose"   # not v1, not cand-1
+        assert latest_candidates(Path(td) / "nothing") == (None, {})
+
+        # the demoted findings MUST be visible at G5 — that is what justifies demoting
+        rep = {"findings": [
+            {"type": "DROPPED", "property": "hedge", "cue": "may", "severity": "warn",
+             "claim": "The retrofit may reduce discomfort."},
+            {"type": "REVERSED", "property": "polarity", "severity": "warn",
+             "claim": "The effect was not significant."},
+            {"type": "NOT_CHECKED", "property": "entailment", "severity": "info"}]}
+        (d / "cand-1.guards.json").write_text(json.dumps(rep))
+        lines = guard_report_lines(d / "cand-1.guards.json")
+        blob = "\n".join(lines)
+        assert "DROPPED hedge" in blob and "REVERSED polarity" in blob, blob
+        assert "'may'" in blob and "may reduce discomfort" in blob, blob
+        assert "NOT_CHECKED" not in blob                      # info is not a warning
+        assert guard_report_lines(d / "absent.json")[0].strip().startswith("(no guard")
+        (d / "clean.guards.json").write_text(json.dumps({"findings": []}))
+        assert "clean" in guard_report_lines(d / "clean.guards.json")[0]
+
+        # a catch trial is two different own-samples, and provenance never leaks
+        anch = st / "anchors"; anch.mkdir(parents=True, exist_ok=True)
+        (anch / "anchor1.md").write_text("<!-- written prose, 2019 -->\n\nMy own words one.")
+        (anch / "anchor2.md").write_text("<!-- spoken transcript -->\n\nMy own words two.")
+        shown = re.sub(r"<!--.*?-->", "", (anch / "anchor1.md").read_text(),
+                       flags=re.S).strip()[:400]
+        assert shown == "My own words one." and "<!--" not in shown
     print("selftest ok")
 
 

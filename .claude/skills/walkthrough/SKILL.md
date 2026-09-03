@@ -11,26 +11,28 @@ conversation. Spec: DESIGN.md §4 (normative); invariants I1–I8 are asserted i
 
 ## Setup (once per paper)
 
-1. `python3 tools/intake_check.py intake/<paper>` — G0 must pass.
-2. `python3 tools/prepass.py --paper <paper.md> --sources <sources/> --state state`
-   — G1 grounding prepass; holds go to `state/holds-report.md`.
-3. Draw the arc map with the author: 3–5 consecutive template sections per arc, one
-   argument thread each → `state/arcs.md`. Register sections:
-   `python3 -c` with `tools/board.py:Board.add_section(sid, arc, type)` — sections
-   whose template type is administrative/boilerplate/procedural get that type (light
-   path; routing is by template type, NEVER by any score).
-4. Put 2–4 author anchor paragraphs in `state/anchors/` (not topic-matched).
-5. Author conventions → `state/termbase.yml`, then
-   `python3 tools/learnings.py --state state vale`.
+1. Draw the arc map with the author: 3–5 consecutive template sections per arc, one
+   argument thread each. Write it into the template: every `## section` block must
+   carry `- **id:**`, `- **type:**` (argumentative / procedural / administrative /
+   boilerplate) and `- **arc:** N` lines. Routing is by template type, NEVER by a score.
+2. `python3 tools/setup_paper.py --intake intake/<paper> --work runs/<paper> --anchors <dir of anchor*.md>`
+   — runs G0 (refuses on a blocking gap) and G1, registers every section with its
+   type and arc, writes `runs/<paper>/sections/<sid>/{original,template,grounded-sources}.md`
+   and `runs/<paper>/state/{board.json,grounding-ledger.json,holds-report.md,anchors/}`.
+   Re-runnable. Every later command takes `--state runs/<paper>/state`.
+3. Anchors: paragraphs of the author's own prose (pool: `intake/<paper>/author-corpus/`).
+   Chris's method prefers one of similar form and topic per draft paragraph.
+4. Author conventions → `state/termbase.yml`, then
+   `python3 tools/learnings.py --state runs/<paper>/state vale`.
 
 ## The loop (repeat per arc)
 
-- **Tock (machine, between sittings):** `python3 tools/tock.py --state state`
+- **Tock (machine, between sittings):** `tools/py tools/tock.py --state runs/<paper>/state`
   — TL;DR extraction for NEW sections; the full pipeline for MEANING_LOCKED ones
-  (ground → draft → guard → meld sweep → guard candidates → grade → rank →
-  REVIEW_READY). Idempotent; crash = re-run. Run it with the venv python
-  (`.venv/bin/python`) so factwash is active in the guard.
-- **Tick (human sitting, ≤90 min):** `python3 tools/tick.py --state state --arc N`
+  (ground → draft → guard → polisher sweep → guard candidates → grade → rank →
+  REVIEW_READY). Idempotent; crash = re-run. `tools/py` is the venv python with the
+  NixOS library paths set, so factwash and MiniCheck are active in the guard.
+- **Tick (human sitting, ≤90 min):** `python3 tools/tick.py --state runs/<paper>/state --arc N`
   — board, meaning block for arc N+1, holds block, approval block for arc N,
   2-AFC calibration, arc close with batch learnings ratification. Interactive:
   the author runs it in a terminal; you prepare and read state, you do not answer
