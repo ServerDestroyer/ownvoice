@@ -188,7 +188,12 @@ def holds_block(b: Board, s: Sitting):
     if not ledger_p.exists():
         return
     ledger = json.loads(ledger_p.read_text())
-    holds = {c: e for c, e in ledger.items() if not e.get("resolves")}
+    # A citation the author CUT stays resolves=false forever — that is what "cut"
+    # means. Filtering on resolves alone re-asked about it at the start of every
+    # later sitting, and the answer went to the previous prompt's question
+    # (2026-09-02). An adjudicated hold is a settled hold.
+    holds = {c: e for c, e in ledger.items()
+             if not e.get("resolves") and not e.get("adjudication")}
     if not holds:
         return
     print(f"\n=== HOLDS BLOCK ({len(holds)}) — candidates in state/holds-report.md ===")
@@ -260,7 +265,7 @@ def approval_block(b: Board, s: Sitting, arc: int):
     """G5 for arc N. Commit-before-reveal: author ranks before seeing the
     machine ranking. Side-by-side candidates."""
     secs = [sid for sid, v in b.data.items()
-            if v["arc"] == arc and v["status"] == "REVIEW_READY"]
+            if v["arc"] == arc and v["status"] in ("REVIEW_READY", "SKIM")]
     if not secs:
         return
     print(f"\n=== APPROVAL BLOCK — arc {arc} ===")
@@ -270,6 +275,24 @@ def approval_block(b: Board, s: Sitting, arc: int):
             return
         s.maybe_diversion()
         d = b.section_dir(sid)
+        if b.data[sid]["status"] == "SKIM":
+            # Light path (administrative/boilerplate/procedural, routed by template
+            # type): nothing was regenerated, so the author reads the original and
+            # signs it off. Without this the section never left SKIM and arc_close —
+            # which requires every section APPROVED — could never fire (2026-09-02).
+            orig = d / "original.md"
+            print(f"\n[{sid}] LIGHT PATH ({b.data[sid]['type']}) — not regenerated.")
+            print(f"  read: {orig}")
+            ans = input("approve / write > ").strip()
+            if ans == "approve":
+                if orig.exists():
+                    (d / "approved.md").write_text(orig.read_text())
+                approve(b, sid, tb_v, learnings_hash(s.state))
+                print(f"{sid}: APPROVED (light path)")
+            else:
+                b.set_status(sid, "AUTHOR_WRITING")
+            s.record("approval_outcome", {"section": sid, "outcome": ans, "path": "light"})
+            continue
         cand_dir, picks = latest_candidates(d)
         if not picks:
             print(f"\n[{sid}] no candidates on disk — run a tock first; skipping.")
@@ -383,11 +406,16 @@ def run(state: Path, arc: int):
     b.assert_wip()
     print(b.show())
     s = Sitting(state)
-    meaning_block(b, s, arc + 1)   # fresh attention first
-    holds_block(b, s)
-    approval_block(b, s, arc)
-    afc_pairs(state, 4, s)
-    arc_close(b, s, arc)
+    try:
+        meaning_block(b, s, arc + 1)   # fresh attention first
+        holds_block(b, s)
+        approval_block(b, s, arc)
+        afc_pairs(state, 4, s)
+        arc_close(b, s, arc)
+    except EOFError:
+        # ctrl-D, or a piped run that ran out of input. Every answer was written to
+        # disk as it was given (I8), so ending here loses nothing already answered.
+        print("\n== sitting ended early (no more input). Answers so far are saved. ==")
     # end on finished work, open the next loop: next arc's first skeleton unmarked
     nxt = [sid for sid, v in b.data.items()
            if v["arc"] == arc + 1 and v["status"] == "TLDR_READY"]
