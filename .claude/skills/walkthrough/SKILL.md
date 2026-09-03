@@ -36,12 +36,34 @@ conversation. Spec: DESIGN.md §4 (normative); invariants I1–I8 are asserted i
   — board, meaning block for arc N+1, holds block, approval block for arc N,
   2-AFC calibration, arc close with batch learnings ratification. Interactive:
   the author runs it in a terminal; you prepare and read state, you do not answer
-  for the author.
-- After each tick, run the next tock. WIP stays ≤ 2 arcs (I4 will fire otherwise).
+  for the author. Two of its blocks are *about* the author — which candidate sounds
+  like them, and which passage is their own writing — so answering for them does not
+  just skip a step, it fabricates the measurement.
+- Light-path sections (administrative/boilerplate/procedural by template type) are not
+  regenerated; they appear in the same approval block for a read and a sign-off, and
+  an arc cannot close until every section in it is APPROVED.
+- After each tick, run the next tock. WIP stays ≤ 2 arcs (I4 will fire otherwise);
+  NEW, SKIM and APPROVED sections are not "in flight".
+
+## What the guard gates, and what it only reports
+
+`tools/guard.py` is a detector: everything it finds is a failure. `tock.MEANING_GATE`
+is the ONLY place a finding is demoted, and it gates on omission and fabrication —
+MISSING claim, MISSING/INVENTED citation, INVENTED number, and a cut citation that
+reappeared in the prose. Everything else (dropped hedges and attributions, reversed
+polarity, added boosters, unalignable sentences, entailment) is reported as a warning,
+because those classes were measured on sentence-for-sentence rewrites and drafting
+from a skeleton legitimately restructures sentences.
+
+That demotion is only honest because the author sees the warnings: `tick.py` prints
+the draft's guard report and every candidate's, with each cue and the claim it belongs
+to. If you ever find those warnings are not reaching the author, the demotion is
+unjustified and the gate must tighten — do not leave it demoted and silent.
 
 ## Paper pass (G7)
 
-When every arc is closed: run `python3 tools/learnings.py --state state scan`, drain
+When every arc is closed: run
+`python3 tools/learnings.py --state runs/<paper>/state scan`, drain
 `state/stale.json` — termbase matches auto-apply at dial 1–3; construction-rule
 matches re-meld ONLY the matched paragraphs from the approved skeleton; every retouch
 of approved prose is presented to the author as a diff (`board.modify_approved`
@@ -49,10 +71,24 @@ refuses anything else — I6).
 
 ## Hard rules (from BUILD.md frozen decisions)
 
-- Claude never melds; the meld runs via OpenRouter with the frozen `tools/meld-v1.json`
-  config (until B1's test session freezes it, `.env` MELD_* is the interim config).
-- No generator input ever contains a prior draft (I1 is asserted; do not bypass).
+- Claude never polishes. The humanizing polisher runs via OpenRouter on the frozen
+  `tools/meld-v1.json` — qwen/qwen3.7-max, arm `humanizing-polisher`, temperature 0.2,
+  thinking off, one paragraph at a time. Headings, lists, tables, boxes and captions
+  pass through untouched.
+- No generator input ever contains a prior draft (I1). `assert_no_prior_draft` only
+  compares whole paragraphs, so single borrowed sentences slip past it: the real
+  enforcement is in what `tock.guard_notes` is allowed to quote and in
+  `setup_paper.grounded_sources` never writing the author's own citing sentences into
+  what the drafter reads. Both are pinned by tests; do not relax either.
 - Detector/voice scores are diagnostics: they order candidates, they never gate,
   never route, never appear as targets.
 - Author-written spans: mechanics lock applies; dial per §8; the author's original is
   always preserved and every change shown as a diff against it.
+
+## When something is wrong in a real session
+
+This project is past staged testing: it is adjusted in use. Fix the thing, add the test
+that would have caught it, and add a dated line to the **Adjustment log** in BUILD.md
+saying what prompted the change. A fix that loosens a gate needs the measurement re-run
+(`tools/py tools/bench_guard.py --witness --entailment minicheck`) before it counts —
+the 30-seed library and steps/T1*.md are what "the guard works" means here.
