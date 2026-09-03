@@ -149,6 +149,25 @@ The guard's detection is measured, not asserted: `tools/bench_guard.py` runs a 3
 library with per-class acceptance floors. See `steps/T1-guard-benchmark.md` and
 `steps/T1b-witness-measurement.md`.
 
+## What leaves your machine
+
+Stet is a local pipeline with one network dependency, and it is worth being precise
+about what that means for an unpublished manuscript.
+
+**Sent to OpenRouter** (and from there to the model provider): each paragraph being
+polished, together with the anchor paragraphs of your own writing; each section's
+skeleton and grounded source passages when a draft is generated; and, if the witness
+layer is on, individual sentences from your skeleton and prose. Set
+`OWNVOICE_WITNESS=0` in `.env` to disable the witness.
+
+**Never sent anywhere:** everything else. The lexicon guard, the entailment model and
+the citation grounder all run locally. State, drafts, guard reports and your sitting
+log stay in `runs/`, which is gitignored.
+
+**No API key, no network calls.** Every selftest, the citation gate and the guard's
+local layers run offline. If you want to see the machinery without sending anything
+anywhere, that path works.
+
 ## Honest limitations
 
 - **Voice has a ceiling.** Prompt-based voice transfer plateaus well below human

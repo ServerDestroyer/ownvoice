@@ -169,8 +169,18 @@ def setup(intake: Path, work: Path, anchors: Path | None, arc_default: int):
             retyped.append(f"{sid} -> {want[0]}, arc {want[1]}")
         registered.append(sid)
     if anchors:
+        # Glob *.md, not anchor*.md: the author-corpus pool is the natural source and
+        # its files are not named anchorN.md. And refuse an empty result rather than
+        # accepting it — with no anchors the polisher still runs, at full API cost,
+        # asking the model to make the text "sound like the text from" nothing at all,
+        # and nobody is told (2026-09-03).
+        found = sorted(p for p in anchors.glob("*.md") if p.name.lower() != "readme.md")
+        if not found:
+            sys.exit(f"--anchors {anchors} contains no .md files. Anchors are 2-4 "
+                     "paragraphs of the AUTHOR'S OWN writing, one per file; the "
+                     "polisher rewrites toward them and has no voice without them.")
         (state / "anchors").mkdir(exist_ok=True)
-        for a in sorted(anchors.glob("anchor*.md")):
+        for a in found:
             shutil.copy(a, state / "anchors" / a.name)
     holds = [c for c, e in ledger.items() if not e.get("resolves")]
     print(f"sections registered: {len(registered)} -> {work / 'sections'}")

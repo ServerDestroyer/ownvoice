@@ -16,8 +16,23 @@
 # bare FileNotFoundError from inside a T5 attention kernel. The knob short-circuits
 # that lookup entirely (triton/backends/nvidia/driver.py).
 #
+# Everywhere else this degrades instead of failing. Off NixOS those /run paths do not
+# exist, and .venv/ is gitignored, so on a fresh clone this used to exit 127 —
+# "env: '.../.venv/bin/python': No such file or directory" — for the very command the
+# docs prescribe. It now falls back to the system python, which runs the whole pipeline
+# with the guard's lexicon layer alone; the optional layers report themselves
+# not_checked rather than passing silently.
+#
 # Usage:  tools/py tools/guard.py --selftest --entailment minicheck
-exec env \
-    LD_LIBRARY_PATH="/run/opengl-driver/lib:/run/current-system/sw/share/nix-ld/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
-    TRITON_LIBCUDA_PATH="${TRITON_LIBCUDA_PATH:-/run/opengl-driver/lib}" \
-    "$(dirname "$0")/../.venv/bin/python" "$@"
+root="$(cd "$(dirname "$0")/.." && pwd)"
+py="$root/.venv/bin/python"
+[ -x "$py" ] || py="$(command -v python3)"
+
+libs=""
+for p in /run/opengl-driver/lib /run/current-system/sw/share/nix-ld/lib; do
+    [ -d "$p" ] && libs="${libs:+$libs:}$p"
+done
+[ -n "$libs" ] && export LD_LIBRARY_PATH="${libs}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+[ -d /run/opengl-driver/lib ] && export TRITON_LIBCUDA_PATH="${TRITON_LIBCUDA_PATH:-/run/opengl-driver/lib}"
+
+exec "$py" "$@"

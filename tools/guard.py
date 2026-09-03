@@ -458,11 +458,16 @@ def witness_available() -> bool:
     """The witness defaults ON wherever a key exists: measured out-of-lexicon hedge
     recall 0.33 -> 1.00 at 0.00 false positives for ~$0.005 per 30 paragraphs
     (steps/T1b-witness-measurement.md). OWNVOICE_WITNESS=0 forces it off."""
-    if os.environ.get("OWNVOICE_WITNESS", "").lower() in ("0", "off", "false", "no"):
-        return False
     sys.path.insert(0, str(Path(__file__).parent))
     from meld import dotenv
-    return bool(os.environ.get("OPENROUTER_API_KEY") or dotenv().get("OPENROUTER_API_KEY"))
+    env = dotenv()
+    # Read the switch the same way the key is read. It was environment-only, so
+    # setting OWNVOICE_WITNESS=0 in .env — the one config file the docs point at, and
+    # the documented way to stop sentences leaving the machine — did nothing at all.
+    off = (os.environ.get("OWNVOICE_WITNESS") or env.get("OWNVOICE_WITNESS", "")).lower()
+    if off in ("0", "off", "false", "no"):
+        return False
+    return bool(os.environ.get("OPENROUTER_API_KEY") or env.get("OPENROUTER_API_KEY"))
 
 
 def guard(skeleton: str, output: str, sources: str = "", author_span: str = "",

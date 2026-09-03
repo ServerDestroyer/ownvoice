@@ -16,8 +16,8 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from board import (Board, assert_no_open_holds, assert_no_prior_draft,  # noqa: E402
-                   assert_review_ready, scores_never_gate)
+from board import (Board, Invariant, assert_no_open_holds,  # noqa: E402
+                   assert_no_prior_draft, assert_review_ready, scores_never_gate)
 from guard import apply_gate, guard, sentences  # noqa: E402
 from meld import SEEDS, call, dotenv, is_prose, trigram_overlap  # noqa: E402
 
@@ -240,6 +240,14 @@ def pipeline(board: Board, sid: str, cfg: dict, dry: bool, prior_notes: str = ""
     # meld sweep — frozen config; anchors from state/anchors/
     mc = meld_config(cfg)
     anchors = sorted((board.state / "anchors").glob("*.md"))[:2]  # default 2, widen on flags
+    if not anchors:
+        # Never spend the API budget on a voiceless polish. Without an anchor the arm's
+        # prompt reads "make this text ... sound like the text from" followed by
+        # nothing, and the result is a paid rewrite toward no one (2026-09-03).
+        raise Invariant(
+            f"no anchors in {board.state / 'anchors'} — the polisher has no voice to "
+            "aim at. Put 2-4 paragraphs of the author's own writing there (one per "
+            "file) and re-run; setup_paper.py --anchors <dir> copies them in.")
     cand_dir = d / f"candidates.v{dv}"
     cand_dir.mkdir(exist_ok=True)
     arm = next(a for a in SEEDS["arms"] if a["id"] == mc["arm_id"])
@@ -340,6 +348,23 @@ def selftest():
         run(st, ["s1"], dry=True)  # prints parked, must not raise
         assert meld_config({})["model"]
         assert next_version(d, "draft") == 1
+
+        # the polisher must never run without a voice to aim at. With no anchors the
+        # arm's prompt reads "...sound like the text from" and then nothing, and every
+        # paragraph is billed for a rewrite toward no one.
+        b2 = Board(Path(td) / "st2")
+        b2.add_section("s", 1)
+        (b2.state / "anchors").mkdir(parents=True, exist_ok=True)
+        try:
+            anchors = sorted((b2.state / "anchors").glob("*.md"))[:2]
+            if not anchors:
+                raise Invariant("no anchors")
+            raise SystemExit("empty-anchor guard did not fire")
+        except Invariant:
+            pass
+        src = Path(__file__).read_text()
+        assert "if not anchors:" in src and "raise Invariant(" in src, \
+            "the empty-anchor refusal was removed from pipeline()"
 
         # claims_of: only the meaning sections, and no claim may be deleted or split
         sk = ("## Thesis/topic sentences\n"

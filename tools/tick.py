@@ -235,6 +235,11 @@ def guard_report_lines(report: Path, limit: int = 10) -> list[str]:
         counts[k] = counts.get(k, 0) + 1
     out = ["      guard: " + ", ".join(f"{k} x{n}" for k, n in
                                       sorted(counts.items(), key=lambda kv: -kv[1]))]
+    # Say what was NOT checked. On a machine without the optional guard layers two of
+    # the four run, and a report listing only what it found reads as "nothing else
+    # happened" — the author would take a degraded pass for a clean one (2026-09-03).
+    if rep.get("not_checked"):
+        out.append("      NOT CHECKED (no detector ran): " + ", ".join(rep["not_checked"]))
     detail = [f for f in shown if f.get("cue") or f.get("token")]
     for f in detail[:limit]:
         cue = f.get("cue") or f.get("token")
