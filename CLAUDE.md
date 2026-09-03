@@ -1,6 +1,6 @@
-# Working on Stet with Claude Code
+# Working on OwnVoice with Claude Code
 
-Stet is past staged construction. It is **adjusted in use**: when something is wrong in
+OwnVoice is past staged construction. It is **adjusted in use**: when something is wrong in
 a real session, fix it, add the test that would have caught it, and record it. The
 board is [BUILD.md](BUILD.md); the normative spec is [DESIGN.md](DESIGN.md).
 

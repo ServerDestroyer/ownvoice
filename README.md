@@ -1,10 +1,8 @@
-# Stet
+# OwnVoice
 
-*stet* — the proofreader's mark meaning **let it stand**.
-
-Stet walks a long-form paper, section by section, from machine-written prose into prose
-a human wants to read, in the author's own voice — while proving the meaning did not
-change. Your meaning stands. The writing gets your voice back.
+OwnVoice walks a long-form paper, section by section, from machine-written prose into
+prose a human wants to read, in the author's own voice — while proving the meaning did
+not change. Your meaning stands. The writing gets your voice back.
 
 It is generic across any templated long-form document — dissertation, thesis, grant
 proposal, journal article. The per-paper template is the mandatory spine that keeps the
@@ -23,7 +21,7 @@ Measured, in the research this design is built from: rewriting inflates certaint
 "contributes". An attribution disappears. A negation flips. The text reads better and
 says something you did not mean.
 
-Stet's answer is not a better prompt. It is a gate:
+OwnVoice's answer is not a better prompt. It is a gate:
 
 1. The author locks a **meaning skeleton** for each section — the claims it must carry.
 2. Prose is generated **from that skeleton**, never by editing a previous draft, so
@@ -41,7 +39,7 @@ Core requires **Python 3.13** (the only version tested) and **nothing else** —
 pipeline is standard library only. Clone and verify:
 
 ```bash
-git clone <this repo> stet && cd stet
+git clone https://github.com/ServerDestroyer/ownvoice.git && cd ownvoice
 for t in intake_check prepass setup_paper board meld guard tock tick learnings; do
   python3 tools/$t.py --selftest
 done
@@ -151,7 +149,7 @@ library with per-class acceptance floors. See `steps/T1-guard-benchmark.md` and
 
 ## What leaves your machine
 
-Stet is a local pipeline with one network dependency, and it is worth being precise
+OwnVoice is a local pipeline with one network dependency, and it is worth being precise
 about what that means for an unpublished manuscript.
 
 **Sent to OpenRouter** (and from there to the model provider): each paragraph being
@@ -174,7 +172,7 @@ anywhere, that path works.
   authorship scores. The promise is *clean prose that sounds more like you*, not
   indistinguishable authorship. It improves as your corpus of hand-edits grows.
 - **Voice metrics need a corpus.** Below roughly 50,000 words and 40 documents they run
-  trend-only. Stet says so instead of reporting a confident number.
+  trend-only. OwnVoice says so instead of reporting a confident number.
 - **A topic-mismatched anchor transplants sentence shapes**, not just tone. Anchor
   leakage is measured per candidate, and it is one of the things worth your eye.
 - **It has never processed a real paper.** The pipeline is verified end to end on
@@ -191,6 +189,17 @@ anywhere, that path works.
   that drives the loop conversationally. Optional; the CLI is complete without it.
 - `reviews/`, `spikes/` — the adversarial design review and four research spikes.
 
-Stet is designed to be adjusted while in use. When something is wrong in a real
+OwnVoice is designed to be adjusted while in use. When something is wrong in a real
 session: fix it, add the test that would have caught it, and log it in BUILD.md. Any
 change that loosens a gate must re-run the benchmark before it counts.
+
+## License
+
+[MIT](LICENSE). The optional guard layers are separately licensed by their authors:
+[factwash](https://github.com/collapseindex/factwash) (Apache-2.0) and
+[MiniCheck](https://github.com/Liyan06/MiniCheck).
+
+The synthetic material in `intake/standin/` is invented and carries no scholarly
+authority. The one real document there, `intake/standin/author-corpus/`, is the author's
+own published whitepaper, included because the polisher needs genuine human writing to
+aim at; replace it with your own before using the directory as a template.
