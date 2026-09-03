@@ -13,7 +13,8 @@ tools carry notes where a rule is provisional.
 |---|------|--------|
 | U1 | **End-to-end machine pass on the stand-in** — intake gate → citation grounder → section setup → skeleton → draft → guard → polisher sweep → candidates → review-ready. Record: `steps/U1-end-to-end.md`. | **done 2026-09-02** — both sections REVIEW_READY, zero retries; benchmark reproduces T1/T1b; 9 selftests + T2 gate pass |
 | U1b | **Rehearsal sitting (Chris, interactive)** — `python3 tools/tick.py --state runs/standin2/state --arc 1`, then `--arc 2`, then `learnings.py scan`. The sitting is the ONLY surface never run with a human; do it on throwaway material first. | next — nothing to prepare |
-| U2 | **First real paper** — assets into `intake/<paper>/`, `setup_paper.py`, then tick/tock arc by arc with the author. Paper 007 when its assets arrive; any templated paper before that. | after U1b |
+| U2 | **Ship readiness** — 45-agent audit from a fresh clone; 10 confirmed obstacles fixed, secrets scan clean, install commands executed rather than assumed. Public at github.com/ServerDestroyer/ownvoice (MIT). Record, **including everything still untested**: `steps/U2-ship-readiness.md`. | **done 2026-09-03** |
+| U3 | **First real paper** — assets into `intake/<paper>/`, `setup_paper.py`, then tick/tock arc by arc with the author. Paper 007 when its assets arrive; any templated paper before that. | after U1b |
 
 ## Retired test track (kept for the record; T1, T1b, T2 measured and stand)
 
@@ -83,6 +84,23 @@ tools carry notes where a rule is provisional.
   parenthetical form and are now verified absent mechanically; `sentences()` no longer
   merges after an acronym nor drops heading text; `template_sections` handles `###` and
   rejects duplicate ids; `apply_gate`'s test no longer passes vacuously.
+- 2026-09-03 · **Ship readiness (U2).** A 45-agent audit cloned the repo and tried to
+  become a new user: 10 obstacles confirmed by two refuting verifiers each, all fixed.
+  The important one: with no anchors the polisher still called the API for every
+  paragraph, asking the model to make the text "sound like the text from" nothing — a
+  paid rewrite toward no one. `setup_paper` now refuses an empty `--anchors` (and globs
+  `*.md` so the author-corpus works directly), and `tock` refuses before the sweep.
+  Also: `tools/py` exited 127 on any clone and now falls back to the system python;
+  `tick` prints `NOT CHECKED` so a degraded guard cannot read as a clean pass;
+  `OWNVOICE_WITNESS=0` now works from `.env`, where the docs say to put it; README
+  gained a data-handling disclosure; `intake/standin/README.md` no longer claims its
+  author corpus is empty or synthetic; `CLAUDE.md` was rewritten from the cancelled
+  one-step-per-session protocol. Secrets scan clean across all history. Full record and
+  the **untested list** in `steps/U2-ship-readiness.md`.
+- 2026-09-03 · Name kept as OwnVoice (a rename to "Stet" was written and reverted at
+  Chris's choice), MIT licensed, public at github.com/ServerDestroyer/ownvoice. The
+  private `Deocracy/ownvoice` remains as `origin` and is behind; `public` is the live
+  remote.
 - 2026-09-02 · **`tick.py` corrected before its first use** — it asked 29 and 41
   questions where the sections hold 8 and 10 claims; approval wrote `approved.md` from
   the oldest superseded candidate whatever the author picked; the 2-AFC catch trial
