@@ -36,6 +36,7 @@ Never built (frozen): any certainty-score gate. Pairwise certainty judge is
 grader).
 """
 import argparse
+import importlib.util
 import json
 import os
 import re
@@ -345,6 +346,11 @@ def _scorer(backend: str):
             sys.exit(f"entailment backend '{backend}' not installed — only "
                      "'minicheck' is wired (T1); AlignScore's pins do not build "
                      "on py3.13")
+        if not importlib.util.find_spec("minicheck"):
+            sys.exit("entailment backend 'minicheck' requested but the package is not "
+                     "importable by this interpreter. Install the optional guard extras "
+                     "(see README), or pass --entailment none to run the lexicon layer "
+                     "alone.")
         if os.environ.get("OWNVOICE_ENTAIL_DEVICE", "cpu") == "cpu":
             os.environ["CUDA_VISIBLE_DEVICES"] = ""  # before torch initialises cuda
         from minicheck.minicheck import MiniCheck
@@ -439,7 +445,13 @@ def entail_default() -> str:
     forced = os.environ.get("OWNVOICE_ENTAIL", "").strip()
     if forced:
         return forced
-    return "minicheck" if any(Path(MODEL_DIR).glob("models--lytang--MiniCheck*")) else "none"
+    if not any(Path(MODEL_DIR).glob("models--lytang--MiniCheck*")):
+        return "none"
+    # Weights on disk are not enough — the package must be importable in THIS
+    # interpreter. Gating on the weights alone raised a bare ModuleNotFoundError out
+    # of a T5 attention import for anyone whose python lacks minicheck, which is the
+    # first thing a second machine does (2026-09-03).
+    return "minicheck" if importlib.util.find_spec("minicheck") else "none"
 
 
 def witness_available() -> bool:
