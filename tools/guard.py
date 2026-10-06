@@ -419,8 +419,11 @@ def witness_sentence(sent: str, cache: dict, model: str) -> Counter:
         ans = cache[sent]
     else:
         sys.path.insert(0, str(Path(__file__).parent))
-        from meld import call  # reuse the OpenRouter client + retry
-        raw = call(model, "", WITNESS_PROMPT.format(sent=sent), 0.0)
+        from meld import call, OPENROUTER  # reuse the OpenRouter client + retry
+        # Off OpenRouter (the P1 via OmniRoute) the witness is qwen3.8-flash with
+        # thinking off, Chris's choice 2026-10-06; OpenRouter keeps the measured default.
+        raw = call(model, "", WITNESS_PROMPT.format(sent=sent), 0.0,
+                   thinking="default" if OPENROUTER else "off")
         try:
             ans = json.loads(re.search(r"\{.*\}", raw, re.S).group(0))
         except Exception:

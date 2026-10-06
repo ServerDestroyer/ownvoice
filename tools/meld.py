@@ -26,8 +26,6 @@ import time
 import urllib.request
 from pathlib import Path
 
-API = "https://openrouter.ai/api/v1/chat/completions"
-MODELS = "https://openrouter.ai/api/v1/models"
 SEEDS = json.loads((Path(__file__).parent / "meld_seeds.json").read_text())
 EFFORT_ORDER = ["none", "minimal", "low", "medium", "high", "xhigh", "max"]
 _MODELS: dict = {}
@@ -86,6 +84,21 @@ def dotenv() -> dict:
     return d
 
 
+def _setting(name: str, default: str = "") -> str:
+    return os.environ.get(name) or dotenv().get(name) or default
+
+
+# OWNVOICE_LLM_BASE points the client at any OpenAI-compatible endpoint (the P1 uses
+# legion's OmniRoute over Nexus); OPENROUTER_API_KEY then holds that endpoint's key.
+# OWNVOICE_MODEL_MAP ("a=b,c=d") renames OpenRouter ids to the endpoint's ids for the
+# same model, so meld-v1.json stays the one frozen record on every machine.
+BASE = _setting("OWNVOICE_LLM_BASE", "https://openrouter.ai/api/v1").rstrip("/")
+API = f"{BASE}/chat/completions"
+MODELS = f"{BASE}/models"
+OPENROUTER = "openrouter.ai" in BASE
+MODEL_MAP = dict(p.split("=", 1) for p in _setting("OWNVOICE_MODEL_MAP").split(",") if "=" in p)
+
+
 def api_key() -> str:
     """OPENROUTER_API_KEY from the environment, else .env. Only needed at call time."""
     key = os.environ.get("OPENROUTER_API_KEY") or dotenv().get("OPENROUTER_API_KEY")
@@ -108,13 +121,20 @@ def call(model: str, system: str, user: str, temperature: float,
     """One chat completion. thinking='off' sends the model's lowest reasoning setting
     (see thinking_off); 'default' sends nothing and the model thinks at its default.
     Temperature is omitted for models that reject it (the gpt-5.6 family)."""
-    info = model_info(model)
+    # Other endpoints have no OpenRouter capability index (OmniRoute answers 401), so
+    # skip the fetch and use the switch measured on OmniRoute 2026-10-06: only
+    # thinking={"type":"disabled"} stopped qwen3.7-max reasoning (35 vs ~1000 tokens);
+    # reasoning.effort/enabled, reasoning_effort and enable_thinking were all ignored.
+    info = model_info(model) if OPENROUTER else {}
+    model = MODEL_MAP.get(model, model)
     body = {"model": model,
             "messages": ([{"role": "system", "content": system}] if system else [])
             + [{"role": "user", "content": user}]}
     if "temperature" in info.get("supported_parameters", ["temperature"]):
         body["temperature"] = temperature
-    if thinking == "off" and (r := thinking_off(info)):
+    if thinking == "off" and not OPENROUTER:
+        body["thinking"] = {"type": "disabled"}
+    elif thinking == "off" and (r := thinking_off(info)):
         body["reasoning"] = r
     req = urllib.request.Request(
         API, data=json.dumps(body).encode(),

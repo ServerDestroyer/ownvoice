@@ -249,3 +249,16 @@ tools carry notes where a rule is provisional.
   `meld.py` gained cross-dir `--blind ... --arms --out` (Stage B) and `--tally`.
   Sitting procedure: `steps/T3-sitting.md` — Stage A 48 candidates on Qwen, Stage B
   ~32 on the winning arm across models.
+- 2026-10-06 · **Any OpenAI-compatible endpoint, for the P1.** The P1 (melody) has no
+  OpenRouter key and reaches legion's OmniRoute over Nexus instead. `meld.py` gained
+  `OWNVOICE_LLM_BASE` (endpoint; `OPENROUTER_API_KEY` then holds that endpoint's key)
+  and `OWNVOICE_MODEL_MAP` (OpenRouter id -> endpoint id), so `meld-v1.json` stays
+  the single frozen record. Polisher: `qwen/qwen3.7-max` -> `opencode-go/qwen3.7-max`,
+  the same model. OmniRoute ignores `reasoning`, `reasoning_effort` and
+  `enable_thinking`; only `thinking={"type":"disabled"}` turned thinking off (measured:
+  35 vs ~1000 completion tokens), so off-OpenRouter `thinking: off` sends that.
+  Witness: OmniRoute cannot serve `google/gemini-3.1-flash-lite` (opencode Zen key
+  needed), so on the P1 it maps to `opencode-go/qwen3.8-flash` with thinking off —
+  **Chris's decision, taken without re-running the guard benchmark**. The T1b witness
+  numbers were measured on Gemini and are not re-proven for this witness.
+  OpenRouter behaviour (legion) is unchanged.
