@@ -257,8 +257,8 @@ tools carry notes where a rule is provisional.
   the same model. OmniRoute ignores `reasoning`, `reasoning_effort` and
   `enable_thinking`; only `thinking={"type":"disabled"}` turned thinking off (measured:
   35 vs ~1000 completion tokens), so off-OpenRouter `thinking: off` sends that.
-  Witness: OmniRoute cannot serve `google/gemini-3.1-flash-lite` (opencode Zen key
-  needed), so on the P1 it maps to `opencode-go/qwen3.8-flash` with thinking off —
-  **Chris's decision, taken without re-running the guard benchmark**. The T1b witness
-  numbers were measured on Gemini and are not re-proven for this witness.
-  OpenRouter behaviour (legion) is unchanged.
+  Witness: **Chris, 2026-10-06 — Gemini 3.1 Flash Lite is not to be used in
+  OwnVoice.** The witness default is now `qwen/qwen3.8-flash`, thinking off, on every
+  machine (`opencode-go/qwen3.8-flash` via OmniRoute on the P1). Taken without
+  re-running the guard benchmark: the T1b witness numbers were measured on Gemini and
+  are not re-proven for this witness. The polisher (meld-v1.json) is unchanged.

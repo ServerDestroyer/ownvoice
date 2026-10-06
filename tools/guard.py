@@ -414,23 +414,24 @@ WITNESS_PROMPT = (
 def witness_sentence(sent: str, cache: dict, model: str) -> Counter:
     """Layer 2: two booleans + span-validated markers -> extra source-side markers.
     Never a verdict. Cached per sentence (the skeleton is written once, re-read
-    every tick)."""
-    if sent in cache:
-        ans = cache[sent]
+    every tick). Keyed by model too, so answers cached from the old Gemini witness
+    are never replayed as the current witness's."""
+    key = f"{model}\t{sent}"
+    if key in cache:
+        ans = cache[key]
     else:
         sys.path.insert(0, str(Path(__file__).parent))
-        from meld import call, OPENROUTER  # reuse the OpenRouter client + retry
-        # Off OpenRouter (the P1 via OmniRoute) the witness is qwen3.8-flash with
-        # thinking off, Chris's choice 2026-10-06; OpenRouter keeps the measured default.
-        raw = call(model, "", WITNESS_PROMPT.format(sent=sent), 0.0,
-                   thinking="default" if OPENROUTER else "off")
+        from meld import call  # reuse the OpenRouter client + retry
+        # Witness is qwen3.8-flash with thinking off (Chris, 2026-10-06: Gemini 3.1
+        # Flash Lite is not to be used in OwnVoice).
+        raw = call(model, "", WITNESS_PROMPT.format(sent=sent), 0.0, thinking="off")
         try:
             ans = json.loads(re.search(r"\{.*\}", raw, re.S).group(0))
         except Exception:
             return Counter()  # discarded; deterministic verdict stands
         ans["markers"] = [m for m in ans.get("markers", [])
                           if m.lower() in sent.lower()]  # span-validate
-        cache[sent] = ans
+        cache[key] = ans
     extra = Counter()
     for m in ans.get("markers", []):
         if ans.get("hedged"):
@@ -475,7 +476,7 @@ def witness_available() -> bool:
 
 def guard(skeleton: str, output: str, sources: str = "", author_span: str = "",
           use_witness="auto", entail_backend="auto", state=Path("state"),
-          witness_model="google/gemini-3.1-flash-lite") -> dict:
+          witness_model="qwen/qwen3.8-flash") -> dict:
     if use_witness == "auto":
         use_witness = witness_available()
     if entail_backend == "auto":
@@ -646,9 +647,8 @@ def selftest():
     assert "certainty_gradation" in guard("- X may hold.", "X may hold.")["not_checked"]
 
     # witness span-validation: markers not in the sentence are discarded
-    fake_cache = {"s": {"hedged": True, "attributed": False, "markers": ["may"]}}
+    fake_cache = {"m\ts": {"hedged": True, "attributed": False, "markers": ["may"]}}
     assert witness_sentence("s", fake_cache, "m")[("hedges", "may")] == 1
-
     # T1b defects, pinned: (1) witness quoting an in-lexicon cue must not
     # double-count it (identical text self-flagged before the union merge)
     s = "The drug may reduce symptoms."
